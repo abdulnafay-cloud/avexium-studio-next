@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import {projects} from '@/data/catalog';
+export default function CaseNavigation({index}:{index:number}){return <section className="section-pad case-navigation"><div className="case-navigation-head"><h2>Discover more<br/>independent work.</h2><Link className="outline-link" href="/work">Back to index ↗</Link></div><div className="case-navigation-grid">{[-1,1].map(step=>{const p=projects[(index+step+projects.length)%projects.length];return <Link href={`/work/${p.slug}`} key={step}><div className="case-navigation-meta"><span>{step<0?'← PREVIOUS PROJECT':'NEXT PROJECT →'}</span><h3>{p.title}</h3><small>{p.category} / Self-initiated</small></div><div className="work-media"><Image src={p.image} alt={`${p.title} project preview`} fill sizes="(max-width:750px) 90vw, 45vw"/></div></Link>;})}</div></section>;}

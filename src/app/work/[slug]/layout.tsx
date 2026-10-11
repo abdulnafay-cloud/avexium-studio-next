@@ -1,0 +1,1 @@
+export default function CaseLayout({children}:{children:React.ReactNode}){return <>{children}<aside className="portfolio-disclaimer">Portfolio artwork is illustrative prototype content. Prices, reviews, product claims and interface outcomes shown inside screenshots are example content, not verified results or product claims by Avexium.</aside></>;}
