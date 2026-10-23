@@ -22,8 +22,7 @@ for(const height of [667,720,844,1080]){
 const expectedRemainder=Math.pow(.93,60);
 for(const fps of [30,45,60])assert.ok(Math.abs(Math.pow(1-(1-Math.pow(.93,60/fps)),fps)-expectedRemainder)<1e-12);
 assert.ok(runtime.includes('mm+=(tgt-mm)*(1-Math.pow(.93,dt*60));'));
-const poseContext=vm.createContext({clamp:(v,a,b)=>Math.min(b,Math.max(a,v))});vm.runInContext(require('./home-story-motion.cjs'),poseContext);
-for(const narrow of [false,true]){const logo=poseContext.homeStoryPose(3,0,narrow);assert.equal(logo.weight,1);assert.equal(logo.yaw,0);assert.equal(Math.abs(logo.pitch),0);assert.equal(Math.abs(logo.x),0);for(const progress of [0,.25,.5,.75,1]){const pose=poseContext.homeStoryPose(4,progress,narrow);assert.equal(pose.weight,1);assert.ok(pose.scale<=.58+.0001);assert.ok(pose.yaw>=.18&&pose.yaw<=.53);}}
-assert.ok(runtime.includes('U.uVel.value=uv*(1-storyWeight)'));
-assert.ok(runtime.includes('pts.quaternion.slerp(storyRotation,storyWeight)'));
-console.log('Passed: original hero/work/logo cues preserved, helix held through process chapters, bounded scroll poses and stable timing at four viewport heights.');
+assert.ok(runtime.includes('U.uVel.value=uv;'));
+assert.ok(!runtime.includes('homeStoryPose'));
+assert.ok(!runtime.includes('storyWeight'));
+console.log('Passed: original animation preserved, with corrected logo/process scroll sequence at four viewport heights.');
