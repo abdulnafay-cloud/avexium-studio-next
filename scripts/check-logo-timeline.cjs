@@ -12,12 +12,18 @@ function timeline(code,height){
 }
 for(const height of [667,720,844,1080]){
  const actual=timeline(runtime,height),expected=timeline(reference,height);
- for(let y=0;y<=12000;y+=10)assert.equal(actual.morphAt(y,12000),expected.morphAt(y,12000),'Scroll cue differs from supplied example at '+y+' / '+height);
+ for(let y=0;y<=7504-height*1.1;y+=10)assert.equal(actual.morphAt(y,12000),expected.morphAt(y,12000),'Earlier scroll cue differs at '+y+' / '+height);
  assert.equal(actual.morphAt(5200+height*.35,12000),3);
+ for(let y=7504-height*.35;y<=11000-height*.85;y+=10)assert.equal(actual.morphAt(y,12000),4,'Process must hold its helix through all chapters');
+ assert.equal(actual.morphAt(11000+height*.35,12000),5);
 }
 // The reference uses 7% interpolation per 60Hz frame. Verify equal convergence
 // over one second at both of the site's rendering caps.
 const expectedRemainder=Math.pow(.93,60);
 for(const fps of [30,45,60])assert.ok(Math.abs(Math.pow(1-(1-Math.pow(.93,60/fps)),fps)-expectedRemainder)<1e-12);
 assert.ok(runtime.includes('mm+=(tgt-mm)*(1-Math.pow(.93,dt*60));'));
-console.log('Passed: homepage scroll cues match the supplied example at four viewport heights; smoothing matches its 60Hz timing.');
+const poseContext=vm.createContext({clamp:(v,a,b)=>Math.min(b,Math.max(a,v))});vm.runInContext(require('./home-story-motion.cjs'),poseContext);
+for(const narrow of [false,true]){const logo=poseContext.homeStoryPose(3,0,narrow);assert.equal(logo.weight,1);assert.equal(logo.yaw,0);assert.equal(Math.abs(logo.pitch),0);assert.equal(Math.abs(logo.x),0);for(const progress of [0,.25,.5,.75,1]){const pose=poseContext.homeStoryPose(4,progress,narrow);assert.equal(pose.weight,1);assert.ok(pose.scale<=.58+.0001);assert.ok(pose.yaw>=.18&&pose.yaw<=.53);}}
+assert.ok(runtime.includes('U.uVel.value=uv*(1-storyWeight)'));
+assert.ok(runtime.includes('pts.quaternion.slerp(storyRotation,storyWeight)'));
+console.log('Passed: original hero/work/logo cues preserved, helix held through process chapters, bounded scroll poses and stable timing at four viewport heights.');

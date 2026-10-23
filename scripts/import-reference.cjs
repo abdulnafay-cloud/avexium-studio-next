@@ -135,6 +135,19 @@ runtime=runtime.replace("requestAnimationFrame(frame);\n})();", "requestAnimatio
 runtime=runtime.replace('addEventListener(\'resize\',size);size();', "addEventListener('resize',size);size();if(document.fonts)document.fonts.ready.then(measure);");
 markup=require('./site-content.cjs')(markup);
 ({markup,runtime}=require('./launch-readiness.cjs')({markup,runtime}));
+// Keep the brand mark readable and the process helix steady throughout its chapters.
+runtime=runtime.replace('[top(pr)+vh*.5,4],[top(ct),5]', '[top(pr)-vh*.35,4],[Math.max(top(pr)-vh*.35,top(ct)-vh*.85),4],[top(ct)+vh*.35,5]');
+runtime=runtime.replace('var lastDraw=0;',()=>require('./home-story-motion.cjs')+'\nvar storyRotation=new THREE.Quaternion(),storyEuler=new THREE.Euler();\nvar lastDraw=0;');
+runtime=runtime.replace('var vl=lenis?lenis.velocity:0;',`var storyWeight=0;if(route==='home'){
+ var processSection=$('#hproc'),processRect=processSection.getBoundingClientRect(),processProgress=clamp(-processRect.top/Math.max(processSection.offsetHeight-vh,1),0,1),pose=homeStoryPose(mm,processProgress,narrow);storyWeight=pose.weight;
+ pts.position.x+=(pose.x-pts.position.x)*storyWeight;pts.position.y+=(pose.y-pts.position.y)*storyWeight;
+ pts.scale.setScalar(pts.scale.x+(pose.scale-pts.scale.x)*storyWeight);
+ storyEuler.set(pose.pitch,pose.yaw,0);storyRotation.setFromEuler(storyEuler);pts.quaternion.slerp(storyRotation,storyWeight);
+ U.uCalm.value=Math.max(U.uCalm.value,.7*storyWeight);
+ }
+ var vl=lenis?lenis.velocity:0;`);
+runtime=runtime.replace('U.uVel.value=uv;', 'U.uVel.value=uv*(1-storyWeight);');
+runtime=runtime.replace('renderer.render(fs,cam);', 'fq.material.uniforms.uF.value=Math.max(fq.material.uniforms.uF.value,.6*storyWeight);renderer.render(fs,cam);');
 write('public/reference/enquiry.js',"(function(){var $=function(s){return document.querySelector(s)},$$=function(s){return Array.from(document.querySelectorAll(s))},pulse=0;\n"+require('./enquiry-runtime.cjs')+'\n})();');
 runtime=runtime.replace(/var names2=\[[^\]]*\],mq=/,()=>`var names2=${JSON.stringify(['Brand identity','Website design','Web development','Product design','AI & automation','Motion & 3D'])},mq=`);
 runtime=runtime.replace("['Websites',1","['Web development',1").replace("['Campaigns',3","['AI & automation',3");
