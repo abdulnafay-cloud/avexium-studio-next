@@ -12,5 +12,5 @@ export async function GET(request:Request){
  const url=new URL(request.url);
  const stats=process.env.DATABASE_URL?await databaseApplicationStats():undefined;
  const html=renderApplicationDashboard(applications,roles,ownerEmail(),{search:url.searchParams.get('q')||'',role:url.searchParams.get('role')||'all'},stats);
- return new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});
+ return new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",'X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin'}});
 }
