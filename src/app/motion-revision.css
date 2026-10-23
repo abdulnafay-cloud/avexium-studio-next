@@ -1,4 +1,8 @@
 /* Scroll-study revision. Component-specific rules keep the original project untouched. */
+.brand-lockup{display:flex;align-items:center;gap:10px;line-height:0}
+.brand-lockup svg{display:block;flex-shrink:0;filter:brightness(0) invert(1)}
+.brand-symbol{width:36px;height:36px}.brand-lettering{width:126px;height:23px}
+@media(max-width:750px){.brand-symbol{width:30px;height:30px}.brand-lettering{width:108px;height:20px}.brand-lockup{gap:8px}}
 .hero-assistant h1.cinematic-headline{top:48%;max-width:none;width:72%;font-size:clamp(36px,4.5vw,72px);line-height:1.03;transform:none;opacity:1;letter-spacing:-.055em;text-wrap:initial}
 .hero-character{display:inline-block;--exit:clamp(0,calc(var(--title-exit,0)*1.3 - var(--delay)),1);opacity:calc(1 - var(--exit));transform:translate(calc(var(--exit)*var(--dx)),calc(var(--exit)*var(--dy))) rotate(calc(var(--exit)*var(--spin)));will-change:transform,opacity}
 .hero-screen-wipe{position:absolute;inset:0;z-index:8;background:var(--paper);pointer-events:none;opacity:var(--screen-wipe,0)}
@@ -26,7 +30,8 @@
 .home-statement h2{font-size:clamp(36px,4.6vw,70px);line-height:1.12;max-width:25ch}
 .home-statement .scramble{display:block}
 .service-orbit{height:340svh;position:relative}
-.orbit-stage{position:sticky;top:0;height:100svh;min-height:580px;overflow:hidden}
+.orbit-stage{position:sticky;top:0;height:100svh;min-height:0;overflow:hidden}
+.hero-journey .scene-hero{min-height:0}
 .orbit-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;text-align:center}
 .orbit-title h2{font-size:clamp(40px,4.7vw,72px);white-space:nowrap;margin-bottom:38px}
 .orbit-title .outline-link{min-width:315px;font-size:17px;background:var(--paper);padding:16px 35px;justify-content:center;gap:20px}
@@ -165,7 +170,7 @@ html[data-motion=pause] .reveal-ready{opacity:1;transform:none;transition:none}
  .home-practice{min-height:78svh;padding-top:100px;padding-bottom:90px}.practice-note{max-width:72%;font-size:14px}.practice-note .section-label{font-size:10px}
  .practice-marquee{bottom:20%}.practice-marquee-copy{gap:15vw;padding:0 7.5vw}.practice-marquee a{font-size:31px}.practice-marquee a span{font-size:9px}
  .home-statement{min-height:65svh;padding-top:70px;padding-bottom:70px}.home-statement h2{font-size:34px;max-width:22ch;line-height:1.12}
- .service-orbit{height:260svh}.orbit-stage{min-height:620px}.orbit-title{top:47%}.orbit-title h2{font-size:36px;margin-bottom:25px}.orbit-title .outline-link{min-width:245px;font-size:13px;padding:15px 20px}
+ .service-orbit{height:260svh}.orbit-stage{min-height:0}.orbit-title{top:47%}.orbit-title h2{font-size:36px;margin-bottom:25px}.orbit-title .outline-link{min-width:245px;font-size:13px;padding:15px 20px}
  .orbit-card{width:155px}.orbit-image{width:190px}.orbit-note{padding:15px}.orbit-note h3{font-size:17px;margin-top:20px}.orbit-note p{font-size:9px}.orbit-note small{font-size:8px}
  .home-work-heading{grid-template-columns:1fr;gap:30px;margin-bottom:55px}.home-work-heading h2{font-size:32px;margin-top:25px}.home-work-heading>p{padding-top:0;font-size:14px;max-width:45ch}
  .home-work-grid{grid-template-columns:1fr;gap:55px}.home-project,.home-project-2,.home-project-3{grid-column:auto;margin-top:0}.home-project figure,.home-project-2 figure{aspect-ratio:1.25}

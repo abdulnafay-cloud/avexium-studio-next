@@ -20,7 +20,7 @@ function getPage(hostname = '127.0.0.1') {
       let html = '';
       response.setEncoding('utf8');
       response.on('data', chunk => {if (html.length < 1000000) html += chunk;});
-      response.on('end', () => resolve(response.statusCode === 200 && html.includes('Avexium') && html.includes('scene-assistant')));
+      response.on('end', () => resolve(response.statusCode === 200 && html.includes('Avexium') && html.includes('id="reference-site"')));
       response.on('error', () => resolve(false));
     });
     request.on('timeout', () => request.destroy());
@@ -58,19 +58,21 @@ async function main() {
   const occupiedAddresses = [];
   if (!ipv4Available) occupiedAddresses.push('127.0.0.1');
   if (!ipv6Available) occupiedAddresses.push('::1');
-  const existingPreview = occupiedAddresses.length > 0 && (await Promise.all(occupiedAddresses.map(getPage))).every(Boolean);
+  // On Windows an address-specific probe can succeed beside a wildcard listener.
+  // Check the actual page as well, so an existing preview is always reused.
+  const existingPreview = await getPage('127.0.0.1') && (await Promise.all(occupiedAddresses.map(getPage))).every(Boolean);
   if (process.argv.includes('--check')) {
     console.log(JSON.stringify({project, node: process.execPath, nodeVersion: process.version, dependenciesPresent: true, productionBuildPresent: fs.existsSync(buildId), port, ipv4Available, ipv6Available, portAvailable: available, existingAvexiumPreview: existingPreview}, null, 2));
     if (!available && !existingPreview) throw new Error('Port 3002 belongs to another service. No process was stopped.');
     return;
   }
 
-  if (!available) {
-    if (!existingPreview) throw new Error('Port 3002 is already in use by another service. Close that service yourself or choose a different preview port. No process was stopped.');
+  if (existingPreview) {
     console.log('Avexium is already running. Opening the existing preview; no second server will be started.');
     if (!await openBrowser()) console.log(`Open this address manually: ${address}`);
     return;
   }
+  if (!available) throw new Error('Port 3002 is already in use by another service. Close that service yourself or choose a different preview port. No process was stopped.');
 
   if (!fs.existsSync(buildId)) {
     console.log('Preparing the production preview. The first build can take a few minutes.');

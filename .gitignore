@@ -2,3 +2,11 @@ node_modules/
 .next/
 .env*
 *.tsbuildinfo
+.data/
+.netlify/
+.next-bootstrap-backup/
+.pnpm-store/
+source-backup-*/
+*.log
+
+!.env.example

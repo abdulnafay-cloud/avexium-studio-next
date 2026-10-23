@@ -1,0 +1,4 @@
+import {authorizeOwner} from '@/lib/admin-auth';
+import {careerDatabase} from '@/lib/career-database';
+export const dynamic='force-dynamic';
+export async function GET(){const denied=await authorizeOwner();if(denied)return denied;try{const sql=careerDatabase();const [queue,errors]=await Promise.all([sql`SELECT count(*) FILTER (WHERE sent_at IS NULL)::int AS pending,count(*) FILTER (WHERE status='failed')::int AS failed FROM public.avexium_notification_outbox`,sql`SELECT code,severity,created_at FROM public.avexium_operational_events ORDER BY created_at DESC LIMIT 10`]);return Response.json({database:'available',notifications:queue[0],recentEvents:errors,emailDelivery:process.env.RESEND_API_KEY?'configured':'local-preview',time:new Date().toISOString()},{headers:{'Cache-Control':'no-store'}});}catch{return Response.json({database:'unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}}

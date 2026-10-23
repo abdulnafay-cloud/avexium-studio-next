@@ -4,6 +4,7 @@ import {useEffect,useRef} from 'react';
 import {usePathname} from 'next/navigation';
 import ScrambleText from './ScrambleText';
 import {projects} from '@/data/catalog';
+import BrandLogo from './BrandLogo';
 const links=[['Work','/work'],['Studio','/studio'],['Services','/services'],['Journal','/journal'],['Industries','/industries'],['Contact','/contact']];
 export default function Navigation(){
  const dialog=useRef<HTMLDialogElement>(null),path=usePathname();
@@ -11,7 +12,7 @@ export default function Navigation(){
  const close=()=>dialog.current?.close();
  return <>
   <header className="site-nav">
-   <Link href="/" className="wordmark" aria-label="Avexium home"><svg className="brand-icon" viewBox="0 0 40 40" aria-hidden="true">{Array.from({length:24},(_,i)=><path key={i} d="M20 3V11" transform={`rotate(${i*15} 20 20)`} stroke="currentColor" strokeWidth={i%3===0?1.8:.8}/>)}</svg><span>avexium</span></Link>
+   <Link href="/" className="wordmark" aria-label="Avexium Digital home"><BrandLogo/></Link>
    <nav aria-label="Primary"><div>{links.slice(0,3).map(([label,url])=><Link key={url} aria-current={path===url?'page':undefined} href={url}><ScrambleText text={label}/></Link>)}</div><div>{links.slice(3).map(([label,url])=><Link key={url} aria-current={path===url?'page':undefined} href={url}><ScrambleText text={label}/></Link>)}</div></nav>
    <button aria-label="Open menu" aria-haspopup="dialog" onClick={()=>dialog.current?.showModal()} className="menu-button"><span/><span/></button>
   </header>

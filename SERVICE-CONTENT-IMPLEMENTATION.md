@@ -1,0 +1,15 @@
+# Service content and subpages
+
+The detail background matches the overview's 62,000 desktop / 26,000 mobile particles, brightness distribution, opaque renderer, 56-row wave, camera, scroll-dependent scale, mouse tilt, velocity-based trails and aurora layers. Canvas opacity is the same 45% desktop / 30% mobile; an extra darkening gradient has been removed. Service colour remains fixed to the selected service.
+
+The ten services shown in the current Services experience each have a dedicated, server-rendered page at `/services/<slug>`. Content lives in `src/data/service-pages.json`; the shared page and responsive styles live under `src/app/services/`. Each page includes use cases, implementation work, acceptance checks, technology options, deliverables, client inputs, a four-step process, FAQs and related services. Titles and descriptions are specific to the service.
+
+The reference importer reads the same catalogue to generate ten overview links and enquiry selections. Home capability links also open relevant detail pages. Existing service URLs are redirected to their corresponding current service page rather than collapsing every detail URL into the overview. Unknown service slugs return 404.
+
+Each overview card exposes a white pill labelled “View service details”. The detail hero reuses its original animated specimen and accent colour. `src/data/service-visuals.ts` is generated from the supplied reference; the AI grid is populated on the server. Detail pages now share the website's fixed particle-wave background, branded navigation, full-height hero and glass panels. `ServiceBackground.tsx` uses shaders extracted from the main renderer into `src/data/service-particle-shaders.ts`; it pauses offscreen, honours reduced motion and disposes GPU resources on unmount. The service colour stays consistent throughout its page. The navigation mark is generated from the same logo points as the main site's canvas. The overview keeps its stacked cards and scroll-driven palette.
+
+Visible pricing and budget bands have been removed from the active site. The enquiry form asks for project stage instead. A service-page enquiry link preselects its service, and the email draft includes the selected services and project stage. The existing email-draft mechanism remains; this change does not add server submission or claim that an enquiry has been sent.
+
+Technology descriptions present options selected for a project's requirements; they do not claim certifications, past client outcomes, guaranteed rankings or external platform approval. Selected technical sections link to primary documentation. Historical/reference HTML files are retained as source material and are not served as active site content.
+
+Validation: `scripts/check-service-pages.cjs` checks catalogue completeness and, with a preview origin, all ten routes, overview links, contextual enquiry URLs, pricing removal, representative legacy redirects and unknown-service handling. `scripts/check-logo-timeline.cjs` protects the existing homepage scroll choreography.

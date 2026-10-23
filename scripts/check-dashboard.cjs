@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const {renderApplicationDashboard}=require('../src/lib/application-dashboard.ts');
+const roles=require('../src/data/career-roles.json');
+const now=new Date().toISOString();
+const fixture={id:'00000000-0000-0000-0000-000000000001',createdAt:now,role:'product-designer',name:'QA <script>alert(1)</script>',email:'dashboard-test@example.invalid',portfolio:'javascript:alert(1)',message:'<img src=x onerror=alert(1)>',availability:'Available for testing',consentAt:now,hasCV:true};
+const html=renderApplicationDashboard([fixture],roles,'owner@example.invalid');
+for(const text of ['Dashboard','Application inbox','Total applications','Past 7 days','CVs attached','By discipline','Room to grow.','Sign out','Download CV'])assert.ok(html.includes(text),text);
+assert.ok(html.includes('QA &lt;script&gt;alert(1)&lt;/script&gt;'));assert.ok(!html.includes('<script>alert(1)</script>'));assert.ok(!html.includes('javascript:alert(1)'));assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
+assert.ok(renderApplicationDashboard([],roles,'owner@example.invalid').includes('Your inbox is ready.'));
+assert.ok(renderApplicationDashboard([fixture],roles,'owner@example.invalid',{search:'no-match'}).includes('No matching applications'));
+assert.ok(renderApplicationDashboard([fixture],roles,'owner@example.invalid',{role:'brand-designer'}).includes('No matching applications'));
+assert.ok(renderApplicationDashboard([fixture],roles,'owner@example.invalid',{search:'dashboard-test'}).includes('Download CV'));
+assert.ok(html.includes('method="get" action="/admin/applications"'));assert.ok(html.includes('method="post" action="/api/admin/logout"'));
+console.log('Passed: dashboard sections, empty state, search and role filters, escaped applicant content, safe portfolio URLs and private action links.');
