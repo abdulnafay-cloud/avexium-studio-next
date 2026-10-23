@@ -104,7 +104,7 @@ h2.big{font-size:clamp(33px,5.55vw,90px);max-width:12ch}
 .cap h3{font-size:clamp(18px,1.95vw,28.5px)}.cap span{color:var(--mut);font-size:11.25px;text-align:right}
 
 /* logo section */
-.lg{height:320vh}
+.lg{height:180vh}
 .lg .pin{justify-content:flex-end;padding-bottom:clamp(27px,6vh,67.5px)}
 .lg h2{font-size:clamp(25.5px,4.05vw,63px);max-width:16ch}
 .lg .row{margin-top:18px}

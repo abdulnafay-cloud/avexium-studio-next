@@ -197,7 +197,7 @@ function updateCareerScene(y){
 
 function size(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);renderer.clear();cam.aspect=w/h;cam.updateProjectionMatrix();U.uAsp.value=w/h;measure()}
 
-var KX=[2.2,-1.9,0,0,1.9,0],KS=[1.55,1,1.25,1.05,1,1.35];
+var KX=[2.2,-1.9,0,0,1.9,0],KS=[1.55,1.12,1.25,1.05,1,1.35];
 function kf(a,m){var i=Math.floor(clamp(m,0,4.999)),f=m-i;f=f*f*(3-2*f);return a[i]+(a[i+1]-a[i])*f}
 var PM={services:[1,2],work:[2,3],process:[4,4],careers:[0,4],start:[3,3]},HP=[];
 function top(el){return el.getBoundingClientRect().top+scrollY}

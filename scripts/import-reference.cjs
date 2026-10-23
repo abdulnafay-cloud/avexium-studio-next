@@ -8,6 +8,9 @@ const write=(file,text)=>fs.writeFileSync(path.join(root,file),text);
 let css=[...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m=>m[1]).join('\n');
 let markup=source.match(/<body[^>]*>([\s\S]*?)<\/body>/i)[1].replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
 let runtime=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(Boolean).join('\n').replace(/\r\n/g,'\n');
+// A short logo pause and slightly fuller rings, keeping the existing animation.
+css=css.replace('.lg{height:320vh}', '.lg{height:180vh}');
+runtime=runtime.replace('KS=[1.55,1,1.25,1.05,1,1.35]', 'KS=[1.55,1.12,1.25,1.05,1,1.35]');
 markup=markup.replace(/(<section class="hero"[^>]*><div class="wrap">)\s*<h1>[\s\S]*?<\/h1>\s*<div class="row fade"><p>[\s\S]*?<\/p>/,(_,opening)=>`${opening}<p class="hero-eyebrow">Design &amp; engineering, together.</p><h1><span class="ln"><span style="--d:0">Design. Build. Grow.</span></span></h1><div class="row fade"><p>Brand identities, websites and digital products. Thoughtfully designed, carefully engineered, ready for your next step.</p>`);
 // Import only the new Services design; the other five views keep their source.
 const servicesReference=fs.readFileSync(path.join(root,'design-reference/Avexium_Digital_services-redesign.html'),'utf8');
