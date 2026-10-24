@@ -12,6 +12,7 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
   let cancelled=false,cleanup:undefined|(()=>void);
   import('three').then(THREE=>{
    if(cancelled)return;
+   const sceneAccent=getComputedStyle(document.documentElement).getPropertyValue('--studio-red').trim()||accent;
    let renderer:InstanceType<typeof THREE.WebGLRenderer>;
    try{renderer=new THREE.WebGLRenderer({canvas,alpha:false,antialias:false});}catch{return;}
    const reduced=matchMedia('(prefers-reduced-motion: reduce)'),mobile=innerWidth<760;
@@ -51,10 +52,10 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
    geometry.setAttribute('aR',new THREE.BufferAttribute(random,1));
    geometry.setAttribute('aK',new THREE.BufferAttribute(kind,1));
    geometry.setAttribute('aB',new THREE.BufferAttribute(brightness,1));
-   const color=new THREE.Color(accent),light=color.clone().lerp(new THREE.Color('white'),.5);
+   const color=new THREE.Color(sceneAccent),light=color.clone().lerp(new THREE.Color('white'),.5);
    // Match the reference's direct RGB service palette, rather than applying an
    // additional colour-space conversion to its supplied service swatches.
-   const rgb=accent.replace('#',''),r=parseInt(rgb.slice(0,2),16)/255,g=parseInt(rgb.slice(2,4),16)/255,b=parseInt(rgb.slice(4,6),16)/255;
+   const rgb=sceneAccent.replace('#',''),r=parseInt(rgb.slice(0,2),16)/255,g=parseInt(rgb.slice(2,4),16)/255,b=parseInt(rgb.slice(4,6),16)/255;
    color.setRGB(r,g,b);light.setRGB(r+(1-r)*.5,g+(1-g)*.5,b+(1-b)*.5);
    const uniforms={uS:{value:1},uM:{value:2},uT:{value:0},uI:{value:1},uPR:{value:1},uAsp:{value:1},uMouse:{value:new THREE.Vector2(9,9)},uPulse:{value:0},uCalm:{value:0},uVel:{value:0},uC1:{value:new THREE.Vector3(color.r,color.g,color.b)},uC2:{value:new THREE.Vector3(light.r,light.g,light.b)}};
    if(variant==='about'){uniforms.uS.value=0;uniforms.uM.value=0;}
@@ -95,8 +96,8 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
      points.position.y=narrow?.8:.15;
      points.scale.setScalar(narrow?.65:1.04);
      points.rotation.x=.2+structure*.3;points.rotation.y=-.3+uniforms.uT.value*.035+eased*.7+mouseX*.08;
-     const tint=wave;uniforms.uC1.value.set(.49+tint*.18,.86-tint*.22,.78+tint*.18);
-     uniforms.uC2.value.set(.8+tint*.1,.94-tint*.11,.9+tint*.1);
+     const tint=wave;uniforms.uC1.value.set(.95,.216+tint*.1,.14+tint*.1);
+     uniforms.uC2.value.set(1,.68+tint*.16,.5+tint*.23);
     }
     trailMaterial.uniforms.fade.value=Math.max(.1,Math.min(.3,.24-Math.abs(velocity)*.08));
     // The overview accumulates particles over a translucent fade quad. Preserve

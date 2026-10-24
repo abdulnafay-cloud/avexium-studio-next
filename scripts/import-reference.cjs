@@ -62,7 +62,7 @@ runtime=runtime.replace(serviceFrame,`if(route==='services'){
   RB[i].classList.toggle('on',i===active);
   if(i===active)RB[i].setAttribute('aria-current','step');else RB[i].removeAttribute('aria-current');
  });
- var fromColor=AI[index].dataset.c.split(',').map(Number),toColor=AI[next].dataset.c.split(',').map(Number),serviceColor=fromColor.map(function(c,i){return c+(toColor[i]-c)*blend});
+ var fromColor=[.88+index*.008,.17+index*.006,.11+index*.004],toColor=[.88+next*.008,.17+next*.006,.11+next*.004],serviceColor=fromColor.map(function(c,i){return c+(toColor[i]-c)*blend});
  tint=serviceColor.concat(serviceColor.map(function(c){return c+(1-c)*.5}));
 }`);
 // Services colour is determined by the same scroll blend as its content, without
@@ -145,6 +145,11 @@ runtime=runtime.replace('[top(pr)+vh*.5,4],[top(ct),5]', '[top(pr)-vh*.35,4],[Ma
 runtime=runtime.replace('work:[2,3]', 'work:[2,2]');
 runtime=runtime.replace('var vl=lenis?lenis.velocity:0;', "if(route==='work'){pts.rotation.set(.12+Math.sin(U.uT.value*.12)*.025,-.2+Math.sin(U.uT.value*.1)*.04,0);}\n var vl=lenis?lenis.velocity:0;");
 runtime=runtime.replace('U.uVel.value=uv;', "U.uVel.value=uv;if(route==='work')U.uVel.value=0;");
+// Carry the studio's red / ivory palette through the existing particle scenes.
+runtime=runtime.replace(/var PAL=\[\[.*?\]\];/, 'var PAL=[[.95,.22,.14,1,.83,.7],[.9,.17,.11,1,.65,.48],[.95,.24,.16,1,.87,.76],[.95,.93,.9,1,.98,.94],[.9,.2,.12,1,.76,.59],[.95,.22,.14,1,.83,.7]];');
+runtime=runtime.replace("var c=it.dataset.c.split(',').map(Number);", 'var c=[.953,.216,.141];');
+runtime=runtime.replace('U.uCalm.value=w;', "if(route==='start')w=0;U.uCalm.value=w;");
+runtime=runtime.replace('U.uC1.value.set(pv[0],pv[1],pv[2]);', "if(route==='start')pv=[.95,.22,.14,1,.8,.7];U.uC1.value.set(pv[0],pv[1],pv[2]);");
 write('public/reference/enquiry.js',"(function(){var $=function(s){return document.querySelector(s)},$$=function(s){return Array.from(document.querySelectorAll(s))},pulse=0;\n"+require('./enquiry-runtime.cjs')+'\n})();');
 runtime=runtime.replace(/var names2=\[[^\]]*\],mq=/,()=>`var names2=${JSON.stringify(['Brand identity','Website design','Web development','Product design','AI & automation','Motion & 3D'])},mq=`);
 runtime=runtime.replace("['Websites',1","['Web development',1").replace("['Campaigns',3","['AI & automation',3");
