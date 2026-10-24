@@ -3,7 +3,7 @@
 import {useEffect,useRef,type CSSProperties} from 'react';
 import {vertexShader,fragmentShader} from '@/data/service-particle-shaders';
 
-export default function ServiceBackground({accent}:{accent:string}){
+export default function ServiceBackground({accent,variant='services'}:{accent:string;variant?:'services'|'about'}){
  const canvasRef=useRef<HTMLCanvasElement>(null);
  useEffect(()=>{
   const canvas=canvasRef.current;
@@ -32,6 +32,15 @@ export default function ServiceBackground({accent}:{accent:string}){
    geometry.setAttribute('position',new THREE.BufferAttribute(sphere,3));
    for(let i=1;i<6;i++)geometry.setAttribute('p'+i,new THREE.BufferAttribute(positions,3));
    geometry.setAttribute('p1',new THREE.BufferAttribute(helix,3));
+   if(variant==='about'){
+    const rings=new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+     const a=i*2.399963229728653,b=rand()*Math.PI*2,r=1.7+.48*Math.cos(b);
+     rings.set([r*Math.cos(a),.48*Math.sin(b),r*Math.sin(a)],i*3);
+    }
+    geometry.setAttribute('p1',new THREE.BufferAttribute(rings,3));
+    geometry.setAttribute('p2',new THREE.BufferAttribute(helix,3));
+   }
    geometry.setAttribute('p6',new THREE.BufferAttribute(rows,3));
    geometry.setAttribute('aR',new THREE.BufferAttribute(random,1));
    geometry.setAttribute('aK',new THREE.BufferAttribute(kind,1));
@@ -42,6 +51,7 @@ export default function ServiceBackground({accent}:{accent:string}){
    const rgb=accent.replace('#',''),r=parseInt(rgb.slice(0,2),16)/255,g=parseInt(rgb.slice(2,4),16)/255,b=parseInt(rgb.slice(4,6),16)/255;
    color.setRGB(r,g,b);light.setRGB(r+(1-r)*.5,g+(1-g)*.5,b+(1-b)*.5);
    const uniforms={uS:{value:1},uM:{value:2},uT:{value:0},uI:{value:1},uPR:{value:1},uAsp:{value:1},uMouse:{value:new THREE.Vector2(9,9)},uPulse:{value:0},uCalm:{value:0},uVel:{value:0},uC1:{value:new THREE.Vector3(color.r,color.g,color.b)},uC2:{value:new THREE.Vector3(light.r,light.g,light.b)}};
+   if(variant==='about'){uniforms.uS.value=0;uniforms.uM.value=0;}
    const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
    const points=new THREE.Points(geometry,material),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,.1,50);
    points.frustumCulled=false;points.rotation.set(.5,-.32,0);scene.add(points);camera.position.z=7;
@@ -61,11 +71,27 @@ export default function ServiceBackground({accent}:{accent:string}){
     if(!reduced.matches)uniforms.uT.value+=dt;
     uniforms.uVel.value=reduced.matches?0:velocity;
     const narrow=innerWidth<860,eased=progress*progress*(3-2*progress),heroProgress=reduced.matches?0:Math.min(scrollY/Math.max(innerHeight*.85,1),1);
-    uniforms.uS.value=heroProgress;uniforms.uM.value=heroProgress*.8;
+    if(variant!=='about'){uniforms.uS.value=heroProgress;uniforms.uM.value=heroProgress*.8;}
     mouseX+=(targetX-mouseX)*.06;mouseY+=(targetY-mouseY)*.06;
     points.rotation.y=-.32+mouseX*.12+eased*.3+(1-heroProgress)*uniforms.uT.value*.06;points.rotation.x=.5*heroProgress+mouseY*.06-eased*.12;
     points.scale.setScalar(.75*(narrow?.62:1)*(1+eased*.25)*1.3);
     points.position.y=narrow?.9:0;points.position.x=narrow?0:(1-heroProgress)*1.9;
+    if(variant==='about'){
+     // Morph at the editorial chapters, rather than using unrelated elapsed time.
+     const focus=document.querySelector('.about-focus'),principles=document.querySelector('.about-principles'),evidence=document.querySelector('.about-evidence');
+     const cue=(element:Element|null)=>element?element.getBoundingClientRect().top+scrollY:innerHeight;
+     const advance=(start:number,end:number)=>Math.max(0,Math.min(1,(scrollY-start)/Math.max(end-start,1)));
+     const ring=advance(innerHeight*.2,cue(focus)-innerHeight*.2),structure=advance(cue(focus),cue(principles)-innerHeight*.25),wave=advance(cue(principles),cue(evidence));
+     const morph=reduced.matches?0:ring+structure;
+     uniforms.uM.value+=(morph-uniforms.uM.value)*(1-Math.exp(-dt*6));
+     uniforms.uS.value=reduced.matches?0:wave;uniforms.uVel.value*=.25;
+     points.position.x=narrow?.55:1.9-Math.sin(progress*Math.PI)*.65;
+     points.position.y=narrow?.8:.15;
+     points.scale.setScalar(narrow?.68:1.12);
+     points.rotation.x=.35+structure*.3;points.rotation.y=uniforms.uT.value*.055+eased*.7+mouseX*.08;
+     const tint=wave;uniforms.uC1.value.set(.49+tint*.18,.86-tint*.22,.78+tint*.18);
+     uniforms.uC2.value.set(.8+tint*.1,.94-tint*.11,.9+tint*.1);
+    }
     trailMaterial.uniforms.fade.value=Math.max(.1,Math.min(.3,.24-Math.abs(velocity)*.08));
     // The overview accumulates particles over a translucent fade quad. Preserve
     // that same luminous depth instead of clearing the wave on every frame.
@@ -86,7 +112,7 @@ export default function ServiceBackground({accent}:{accent:string}){
    cleanup=()=>{cancelAnimationFrame(frame);removeEventListener('resize',resize);removeEventListener('scroll',schedule);removeEventListener('pointermove',pointer);document.removeEventListener('pointerleave',leave);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',motion);geometry.dispose();material.dispose();trailGeometry.dispose();trailMaterial.dispose();renderer.dispose();};
   }).catch(()=>{/* The CSS aurora remains visible when WebGL cannot load. */});
   return ()=>{cancelled=true;cleanup?.();};
- },[accent]);
+ },[accent,variant]);
  const rgb=[1,3,5].map(offset=>parseInt(accent.slice(offset,offset+2),16)).join(',');
  return <div className="detail-background" aria-hidden="true" style={{'--ac':rgb} as CSSProperties}><canvas ref={canvasRef}/><div className="detail-aurora aur"><i className="b b1"/><i className="b b2"/><i className="b b3"/></div><div className="detail-vignette"/></div>;
 }
