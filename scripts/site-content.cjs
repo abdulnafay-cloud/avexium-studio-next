@@ -45,7 +45,7 @@ module.exports=function rewriteSiteContent(markup){
   };
   return html.replace(/(<div class="tx"><h3>([^<]+)<\/h3>)<p>[\s\S]*?<\/p>/g,(all,open,title)=>summaries[title]?`${open}<p>${escape(summaries[title])}</p>`:all);
  });
- page('work',html=>html.replace('A selection of recent identities, sites and products.','A collection of self-initiated projects across hospitality, skincare and fashion. The work explores interface design and digital product experiences; it is not presented as commissioned client work.').replace(/(<ul class="svc wl" id="wl">)/,'<p class="work-context">Explore the project previews below. Contact us to discuss a related design or development requirement.</p>$1').replace('</ul>','</ul><p id="work-empty" class="work-context" role="status" hidden>No projects are listed in this category yet. Choose another category or explore the full collection.</p>').replace('Independent restaurant operations exploration','Restaurant operations · Product interface concept').replace('Independent skincare-commerce exploration','Skincare retail · Commerce interface concept').replace('Independent fashion-commerce exploration','Fashion retail · Commerce interface concept'));
+ page('work',require('./work-content.cjs'));
  page('process',html=>{
   html=html.replace('Four steps, each with a clear outcome, so you always know what happens next.','A project moves from an agreed brief to reviewed design, working implementation and a documented handover. Scope, milestones and timing are set around your requirements and dependencies.');
   const phases=[

@@ -1,0 +1,36 @@
+/* A restrained editorial layer inspired by the supplied Avexium studio notes. */
+:root{--studio-paper:#f2eee6;--studio-red:#f33724;--studio-ink:#131313}
+#reference-site,.service-detail,.information-page{color:var(--studio-paper)}
+#reference-site ::selection,.service-detail ::selection,.information-page ::selection{background:#df2d1d;color:#fff}
+#reference-site .pill:not(.ghost),.service-detail .detail-button{background:var(--studio-paper);border-color:var(--studio-paper);color:var(--studio-ink);font-weight:500}
+#reference-site .pill:not(.ghost):hover,.service-detail .detail-button:hover{background:#df2d1d;border-color:#df2d1d;color:#fff}
+#reference-site .pill.ghost:hover{border-color:var(--studio-red);background:rgba(243,55,36,.06)}
+#reference-site #sp,.service-detail .detail-scroll-progress{background:var(--studio-red)}
+#reference-site #nav .links a[aria-current]::after{background:var(--studio-red)}
+#reference-site .hero-eyebrow::before{content:'';display:inline-block;width:6px;height:6px;background:var(--studio-red);margin-right:12px;vertical-align:2px}
+#reference-site #svc .section-intro>.section-eyebrow::before{background:var(--studio-red)}
+#reference-site #logo .identity-heading::after{content:'';display:block;width:36px;height:2px;background:var(--studio-red);margin-top:25px}
+.service-detail .detail-header-links a[aria-current]{border-bottom-color:var(--studio-red)}
+.service-detail .detail-eyebrow{border-left:2px solid var(--studio-red);padding-left:10px}
+.about-page .about-hero h1 em{color:var(--studio-red)}
+.about-page .about-chapter-nav a[aria-current]{background:var(--studio-paper);color:var(--studio-ink)}
+.about-page .about-chapter-nav>span{background:var(--studio-red)}
+#reference-site .page[data-r=work] .work-perspective-grid{gap:22px}
+#reference-site .page[data-r=work] .work-perspective-grid article{position:relative;isolation:isolate;overflow:hidden;border-radius:3px;padding:30px;min-height:330px;border-color:rgba(242,238,230,.25);background:#111213}
+#reference-site .page[data-r=work] .work-perspective-grid article::before{content:'STUDIO NOTE / 0' counter(studio-note);display:block;font-size:9px;letter-spacing:.18em;margin-bottom:34px;color:rgba(242,238,230,.55)}
+#reference-site .page[data-r=work] .work-perspective-grid{counter-reset:studio-note}
+#reference-site .page[data-r=work] .work-perspective-grid article{counter-increment:studio-note}
+#reference-site .page[data-r=work] .work-perspective-grid article>span{font-size:9px;color:var(--studio-paper);opacity:.6;margin-bottom:10px}
+#reference-site .page[data-r=work] .work-perspective-grid article h3{font-size:clamp(27px,2.8vw,39px);font-weight:600;line-height:1.05;max-width:13ch;letter-spacing:-.055em}
+#reference-site .page[data-r=work] .work-perspective-grid article p{font-size:13px;position:relative;z-index:1}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1){background:var(--studio-paper);color:var(--studio-ink);border-color:var(--studio-paper)}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1)::before,#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1)>span{color:#62605b}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1)>span{opacity:1}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1) p{color:#514e49}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(1) h3{color:#d92b1b}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(2)::after{content:'';position:absolute;z-index:-1;width:260px;height:260px;border:1px solid #f3372466;border-radius:50%;right:-165px;top:10px;box-shadow:0 0 0 9px #f3372408,0 0 0 19px #f3372415,0 0 0 32px #f3372408;transform:rotate(-30deg) scaleY(1.7)}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(3){border-top:3px solid var(--studio-red)}
+#reference-site .page[data-r=work] .work-perspective-grid article:nth-child(3) h3{color:var(--studio-red)}
+#reference-site .page[data-r=work] .work-next .section-eyebrow{display:flex;gap:12px;align-items:center}
+#reference-site .page[data-r=work] .work-next .section-eyebrow::before{content:'';height:22px;width:2px;background:var(--studio-red);flex:none}
+@media(max-width:760px){#reference-site .page[data-r=work] .work-perspective-grid article{min-height:0;padding:26px}#reference-site .page[data-r=work] .work-perspective-grid article h3{font-size:34px;max-width:17ch}#reference-site .page[data-r=work] .work-perspective-grid article::before{margin-bottom:25px}}
