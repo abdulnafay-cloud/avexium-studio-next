@@ -8,7 +8,9 @@ for(const route of ['home','services','work','process','careers','start']){
  assert.ok(!/\bWeeks?\s+\d|Open roles|small, senior|next spark|pixel-perfect|Design\. Build\. Grow\./i.test(page),'Unreviewed copy on '+route);
 }
 for(const id of ['svc','work','logo','hproc','hcta','words','plist','stmt','track','sx','deck','need','bud','fn','fe','fmsg','fm','st','enquiry-consent','edit-brief'])assert.ok(markup.includes(`id="${id}"`),'Runtime hook removed: '+id);
-assert.ok(markup.includes('From idea to launch.'));
+assert.ok(markup.includes('Brand. Web. Commerce.'));
+assert.ok(markup.includes('href="/about"'),'Studio information must be discoverable');
+assert.ok(!/From idea to launch\.|Design meets technology\.|Your next chapter starts here\.|Built around<br>your ambition\./.test(markup),'Retired generic headlines must not return');
 assert.equal((markup.match(/class="section-intro"/g)||[]).length,3);
 assert.ok(markup.includes('id="career-search-title"'));
 assert.ok(markup.includes('Your enquiry is submitted directly'));

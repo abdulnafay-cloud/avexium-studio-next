@@ -111,6 +111,7 @@ markup=markup.replace(/<div class="chips" id="need">[\s\S]*?<\/div>/,()=>`<div c
 markup=markup.replace(/<div class="fl">Budget<\/div><div class="chips" id="bud">[\s\S]*?<\/div>/,()=>`<div class="fl">Project stage</div><div class="chips" id="bud">${['Starting something new','Redesigning','Improving an existing product','Exploring options'].map(stage=>`<button type="button" class="chip" aria-pressed="false">${stage}</button>`).join('')}</div>`);
 if(/\$\s*\d|\bBudget\b/i.test(markup))throw new Error('Pricing or budget language remains in the active website.');
 runtime=runtime.replace("$('#fm').addEventListener",()=>"var requestedService=new URLSearchParams(location.search).get('service');$$('#need .chip').forEach(function(c){if(c.dataset.service===requestedService)c.setAttribute('aria-pressed','true')});$('#fm').addEventListener");
+markup=markup.replaceAll('<a href="#/careers">Careers</a>', '<a href="/about">About</a><a href="#/careers">Careers</a>');
 markup=markup.replace('</nav></div></footer>','<a href="/privacy">Privacy</a><a href="/site-information">Site information</a></nav></div></footer>');
 const projects=[
  {slug:'tablevori',name:'Tablevori',image:'/projects/tablevori.png',copy:'Independent restaurant operations exploration',tags:'product web',colors:['#35e0c4','#1f6fff','#04202a']},
