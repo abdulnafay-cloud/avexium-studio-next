@@ -199,7 +199,7 @@ function size(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);rende
 
 var KX=[2.2,-1.9,0,0,1.9,0],KS=[1.55,1.12,1.25,1.05,1,1.35];
 function kf(a,m){var i=Math.floor(clamp(m,0,4.999)),f=m-i;f=f*f*(3-2*f);return a[i]+(a[i+1]-a[i])*f}
-var PM={services:[1,2],work:[2,3],process:[4,4],careers:[0,4],start:[3,3]},HP=[];
+var PM={services:[1,2],work:[2,2],process:[4,4],careers:[0,4],start:[3,3]},HP=[];
 function top(el){return el.getBoundingClientRect().top+scrollY}
 function measure(){if(route!=='home')return;var vh=innerHeight,sv=$('#svc'),wk=$('#work'),lg=$('#logo'),pr=$('#hproc'),ct=$('#hcta');
  HP=[[0,0],[top(sv),1],[top(wk),2],[top(wk)+wk.offsetHeight-vh*1.5,2],[top(lg)+vh*.35,3],[top(lg)+lg.offsetHeight-vh*1.1,3],[top(pr)-vh*.35,4],[Math.max(top(pr)-vh*.35,top(ct)-vh*.85),4],[top(ct)+vh*.35,5]]}
@@ -226,9 +226,10 @@ var lastDraw=0;function frame(now){
  pts.scale.setScalar(0.75*(narrow?.62:1)*kf(KS,mm)*os);
  var base=U.uT.value*.08+p*5+mxn*.25;pts.rotation.y=base*(1-w)+mxn*.1*w;pts.rotation.x=(myn*.15+Math.sin(p*3)*.2)*(1-w)+myn*.08*w;
  pts.position.x*=1-sv;pts.scale.multiplyScalar(1+.3*sv);pts.rotation.y=pts.rotation.y*(1-sv)+(-.32+mxn*.12)*sv;pts.rotation.x=pts.rotation.x*(1-sv)+(.5+myn*.06)*sv;
+ if(route==='work'){pts.rotation.set(.12+Math.sin(U.uT.value*.12)*.025,-.2+Math.sin(U.uT.value*.1)*.04,0);}
  if(route==='careers'){pts.position.x=narrow?0:1.8;pts.position.y=narrow?-.8:0;var story=$('#career-story');if(story){var cr=story.getBoundingClientRect(),cp=clamp(-cr.top/Math.max(story.offsetHeight-innerHeight,1),0,.999),ci=Math.floor(cp*3);document.querySelectorAll('.career-chapters article').forEach(function(el,i){el.classList.toggle('on',reduce||i===ci);el.setAttribute('aria-hidden',reduce||i===ci?'false':'true');});}}
  if(route==='start'){pts.position.set(0,narrow?.9:0,0);pts.scale.setScalar(.75*(narrow?.62:1)*1.3);pts.rotation.set(.5+myn*.06,-.32+mxn*.12,0);}
- var vl=lenis?lenis.velocity:0;uv+=(clamp(vl*.012,-1.6,1.6)-uv)*.1;U.uVel.value=uv;
+ var vl=lenis?lenis.velocity:0;uv+=(clamp(vl*.012,-1.6,1.6)-uv)*.1;U.uVel.value=uv;if(route==='work')U.uVel.value=0;
  fq.material.uniforms.uF.value=clamp(.24-Math.abs(uv)*.08,.1,.3)*(1-w)+.7*w;
  pts.visible=route!=='careers';careerPoints.visible=route==='careers';careerVeil.visible=careerPoints.visible;if(careerPoints.visible)updateCareerScene(y);renderer.render(fs,cam);renderer.render(scene,cam);
  var pi=Math.floor(clamp(mm,0,4.999)),pf=mm-pi;pf=pf*pf*(3-2*pf),A=PAL[pi],B=PAL[pi+1],pv=[];for(var kk=0;kk<6;kk++)pv.push(A[kk]+(B[kk]-A[kk])*pf);

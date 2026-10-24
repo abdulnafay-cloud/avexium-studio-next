@@ -141,6 +141,10 @@ markup=require('./site-content.cjs')(markup);
 ({markup,runtime}=require('./launch-readiness.cjs')({markup,runtime}));
 // Correct only the scroll sequence; preserve the original particle animation.
 runtime=runtime.replace('[top(pr)+vh*.5,4],[top(ct),5]', '[top(pr)-vh*.35,4],[Math.max(top(pr)-vh*.35,top(ct)-vh*.85),4],[top(ct)+vh*.35,5]');
+// Work keeps a quiet wave throughout the page, without morphing into the logo.
+runtime=runtime.replace('work:[2,3]', 'work:[2,2]');
+runtime=runtime.replace('var vl=lenis?lenis.velocity:0;', "if(route==='work'){pts.rotation.set(.12+Math.sin(U.uT.value*.12)*.025,-.2+Math.sin(U.uT.value*.1)*.04,0);}\n var vl=lenis?lenis.velocity:0;");
+runtime=runtime.replace('U.uVel.value=uv;', "U.uVel.value=uv;if(route==='work')U.uVel.value=0;");
 write('public/reference/enquiry.js',"(function(){var $=function(s){return document.querySelector(s)},$$=function(s){return Array.from(document.querySelectorAll(s))},pulse=0;\n"+require('./enquiry-runtime.cjs')+'\n})();');
 runtime=runtime.replace(/var names2=\[[^\]]*\],mq=/,()=>`var names2=${JSON.stringify(['Brand identity','Website design','Web development','Product design','AI & automation','Motion & 3D'])},mq=`);
 runtime=runtime.replace("['Websites',1","['Web development',1").replace("['Campaigns',3","['AI & automation',3");

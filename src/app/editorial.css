@@ -80,6 +80,7 @@
 #reference-site .page .ph>.section-eyebrow{font-size:11px;margin-top:0;margin-bottom:18px}
 #reference-site .page[data-r=services] .ph{min-height:100svh}
 #reference-site .page[data-r=services] .ph::before{display:none}
+#reference-site .page[data-r=work] .ph::before{display:none}
 #reference-site .page[data-r=services] .ph h1{font-size:clamp(64px,9vw,124px);font-weight:500;line-height:1.02;letter-spacing:-.055em}
 #reference-site .page[data-r=services] .ph>p{font-size:clamp(16px,1.5vw,20px);line-height:1.8;max-width:45ch;color:rgba(244,245,247,.68);margin-top:30px}
 #reference-site #sx .cdtop{align-items:flex-start;gap:12px 24px}
