@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,type CSSProperties} from 'react';
 import {vertexShader,fragmentShader} from '@/data/service-particle-shaders';
+import {aboutHeroVertexShader} from '@/data/about-hero-shader';
 
 export default function ServiceBackground({accent,variant='services'}:{accent:string;variant?:'services'|'about'}){
  const canvasRef=useRef<HTMLCanvasElement>(null);
@@ -34,10 +35,15 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
    geometry.setAttribute('p1',new THREE.BufferAttribute(helix,3));
    if(variant==='about'){
     const rings=new Float32Array(count*3);
+    const ribbonCoords=new Float32Array(count*3);
     for(let i=0;i<count;i++){
      const a=i*2.399963229728653,b=rand()*Math.PI*2,r=1.7+.48*Math.cos(b);
      rings.set([r*Math.cos(a),.48*Math.sin(b),r*Math.sin(a)],i*3);
+     const width=(rand()-.5)*.74;
+     ribbonCoords.set([rand()*Math.PI*2,width,i%3],i*3);
+     brightness[i]*=Math.abs(width)>.31?1.45:.72;
     }
+    geometry.setAttribute('ribbonCoord',new THREE.BufferAttribute(ribbonCoords,3));
     geometry.setAttribute('p1',new THREE.BufferAttribute(rings,3));
     geometry.setAttribute('p2',new THREE.BufferAttribute(helix,3));
    }
@@ -52,7 +58,7 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
    color.setRGB(r,g,b);light.setRGB(r+(1-r)*.5,g+(1-g)*.5,b+(1-b)*.5);
    const uniforms={uS:{value:1},uM:{value:2},uT:{value:0},uI:{value:1},uPR:{value:1},uAsp:{value:1},uMouse:{value:new THREE.Vector2(9,9)},uPulse:{value:0},uCalm:{value:0},uVel:{value:0},uC1:{value:new THREE.Vector3(color.r,color.g,color.b)},uC2:{value:new THREE.Vector3(light.r,light.g,light.b)}};
    if(variant==='about'){uniforms.uS.value=0;uniforms.uM.value=0;}
-   const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+   const material=new THREE.ShaderMaterial({uniforms,vertexShader:variant==='about'?aboutHeroVertexShader:vertexShader,fragmentShader,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
    const points=new THREE.Points(geometry,material),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,.1,50);
    points.frustumCulled=false;points.rotation.set(.5,-.32,0);scene.add(points);camera.position.z=7;
    renderer.setClearColor(0x06070a,1);
@@ -87,8 +93,8 @@ export default function ServiceBackground({accent,variant='services'}:{accent:st
      uniforms.uS.value=reduced.matches?0:wave;uniforms.uVel.value*=.25;
      points.position.x=narrow?.55:1.9-Math.sin(progress*Math.PI)*.65;
      points.position.y=narrow?.8:.15;
-     points.scale.setScalar(narrow?.68:1.12);
-     points.rotation.x=.35+structure*.3;points.rotation.y=uniforms.uT.value*.055+eased*.7+mouseX*.08;
+     points.scale.setScalar(narrow?.65:1.04);
+     points.rotation.x=.2+structure*.3;points.rotation.y=-.3+uniforms.uT.value*.035+eased*.7+mouseX*.08;
      const tint=wave;uniforms.uC1.value.set(.49+tint*.18,.86-tint*.22,.78+tint*.18);
      uniforms.uC2.value.set(.8+tint*.1,.94-tint*.11,.9+tint*.1);
     }
