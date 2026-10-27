@@ -215,14 +215,17 @@ runtime=runtime.replace('var vl=lenis?lenis.velocity:0;',`if(route==='start'){pt
  var vl=lenis?lenis.velocity:0;`);
 runtime=runtime.replace("var nmc=$('#nm').getContext('2d');nmc.fillStyle='#fff';for(i=0;i<ord.length;i+=2){var n2=ord[i];nmc.fillRect(34+lx(n2)*31,34-ly(n2)*31,2,2)}",`var nmc=$('#nm').getContext('2d');function drawNavMark(time){nmc.clearRect(0,0,68,68);nmc.fillStyle='#fff';var t=reduce?0:time*.001,spin=Math.sin(t*.45)*.055,c=Math.cos(spin),s=Math.sin(spin);for(var j=0;j<ord.length;j+=2){var n=ord[j],x=lx(n),y=ly(n),breathe=1+(reduce?0:.025*Math.sin(t*1.2+x*3+y*2));nmc.globalAlpha=.7+.3*Math.sin(t*.8+j*.2);nmc.fillRect(34+(x*c-y*s)*29*breathe,34-(x*s+y*c)*29*breathe,1.65,1.65);}nmc.globalAlpha=1;}drawNavMark(0);`);
 runtime=runtime.replace('lastDraw=now;','lastDraw=now;drawNavMark(now);');
-// A physically lit, smaller hero sculpture. The original particles resume as
-// the visitor leaves the introduction; all later chapter poses stay intact.
-runtime=runtime.replace('uS:{value:0},uM:', 'uHeroFade:{value:0},uS:{value:0},uM:');
-runtime=runtime.replace('pts.frustumCulled=false;scene.add(pts);',()=> 'pts.frustumCulled=false;scene.add(pts);\n'+require('./home-hero-scene.cjs'));
-runtime=runtime.replace("fragmentShader:'precision highp float;varying float vA;varying vec3 vC;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,d);gl_FragColor=vec4(vC,a*a*vA*.9);}'", "fragmentShader:'precision highp float;uniform float uHeroFade;varying float vA;varying vec3 vC;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,d);gl_FragColor=vec4(vC,a*a*vA*.9*(1.-uHeroFade));}'");
-runtime=runtime.replace('renderer.render(fs,cam);renderer.render(scene,cam);','updateHomeSculpture(y,vh,narrow);renderer.clearDepth();renderer.render(fs,cam);renderer.render(scene,cam);');
-runtime=runtime.replace("var hwv=(1-clamp(mm*2.5,0,1))*(1-ht)*ix;",'var hwv=0;');
-runtime=runtime.replace('tagsEl.style.opacity=narrow?0:1;', "tagsEl.style.opacity=route==='home'?0:(narrow?0:1);");
+// Keep the original dot-built globe and orbit structure. Contain its outer
+// particles and refine only the home introduction's scale, light and trails.
+runtime=runtime.replace('uS:{value:0},uM:', 'uHeroRefine:{value:0},uS:{value:0},uM:');
+runtime=runtime.replace('uniform float uS,uM,uT,uI,uPR,uAsp,uPulse,uCalm,uVel;', 'uniform float uS,uM,uT,uI,uPR,uAsp,uPulse,uCalm,uVel,uHeroRefine;');
+runtime=runtime.replace('vA=min(vA,1.5)*step(.12,-mv.z);','vA=min(vA,1.5)*step(.12,-mv.z);/*heroLighting*/vA*=mix(1.,aK>.5&&aK<1.5?.18:.85,uHeroRefine);/*endHeroLighting*/');
+runtime=runtime.replace('var vl=lenis?lenis.velocity:0;',`var heroRefine=route==='home'?1-clamp(mm/.8,0,1):0;heroRefine=heroRefine*heroRefine*(3-2*heroRefine);
+ U.uHeroRefine.value=heroRefine;
+ if(heroRefine>0){pts.scale.multiplyScalar(1-.18*heroRefine);pts.position.x+=((narrow?.3:2.15)-pts.position.x)*heroRefine;pts.position.y+=(.35-pts.position.y)*heroRefine;pts.rotation.y+=(U.uT.value*.025-pts.rotation.y)*heroRefine;}
+ var vl=lenis?lenis.velocity:0;`);
+runtime=runtime.replace("pts.visible=route!=='careers';", "if(heroRefine>0){U.uVel.value*=1-.85*heroRefine;fq.material.uniforms.uF.value+=(.3-fq.material.uniforms.uF.value)*heroRefine;}pts.visible=route!=='careers';");
+runtime=runtime.replace('halo.style.opacity=hwv.toFixed(3);','halo.style.opacity=(hwv*.3).toFixed(3);');
 write('public/reference/runtime.js',`/* User-supplied particle design with routing, contact and accessibility integration. */\ntry {\n${runtime}\n} catch(error) {\n console.error('Avexium scene initialization failed',error);document.body.classList.add('loaded','webgl-fallback');window.removeEventListener('hashchange',window.__avexiumRoute);\n const selectPage=()=>{const route=location.hash.replace(/^#\\/?/,'')||location.pathname.split('/').filter(Boolean).join('/')||'home';const pages=[...document.querySelectorAll('.page')];const valid=pages.some(p=>p.dataset.r===route);for(const page of pages)page.classList.toggle('on',page.dataset.r===(valid?route:'home'));document.body.classList.remove('menu-open');const mobile=document.querySelector('.mob');if(mobile){mobile.inert=true;mobile.setAttribute('aria-hidden','true')}window.scrollTo(0,0);};\n window.addEventListener('hashchange',selectPage);selectPage();\n}\n`);
 // Detail pages use the exact particle shader from the shared design, without
 // mounting the overview's router, hidden pages, or scene-specific DOM.
@@ -230,7 +233,7 @@ const shaderStart=runtime.indexOf("vertexShader:'attribute vec3 p1");
 const shaderBlock=runtime.slice(shaderStart,runtime.indexOf('pts.frustumCulled',shaderStart));
 const shaderParts=shaderBlock.split('fragmentShader:');
 const joinShader=expression=>[...expression.matchAll(/'([^']*)'/g)].map(match=>match[1]).join('');
-const vertexShader=joinShader(shaderParts[0]),fragmentShader=joinShader(shaderParts[1]).replace('uniform float uHeroFade;','').replace('*(1.-uHeroFade)','');
+const vertexShader=joinShader(shaderParts[0]).replace(',uHeroRefine','').replace(/\/\*heroLighting\*\/[\s\S]*?\/\*endHeroLighting\*\//,''),fragmentShader=joinShader(shaderParts[1]);
 if(!vertexShader.includes('uS*1.6-aR*.6')||!fragmentShader.includes('gl_PointCoord'))throw new Error('Shared particle shader extraction failed.');
 write('src/data/service-particle-shaders.ts',`// Generated from the main website particle renderer.\nexport const vertexShader=${JSON.stringify(vertexShader)};\nexport const fragmentShader=${JSON.stringify(fragmentShader)};\n`);
 const logoBytes=Buffer.from(source.match(/var raw=atob\('([^']+)'\)/)[1],'base64');
