@@ -215,17 +215,27 @@ runtime=runtime.replace('var vl=lenis?lenis.velocity:0;',`if(route==='start'){pt
  var vl=lenis?lenis.velocity:0;`);
 runtime=runtime.replace("var nmc=$('#nm').getContext('2d');nmc.fillStyle='#fff';for(i=0;i<ord.length;i+=2){var n2=ord[i];nmc.fillRect(34+lx(n2)*31,34-ly(n2)*31,2,2)}",`var nmc=$('#nm').getContext('2d');function drawNavMark(time){nmc.clearRect(0,0,68,68);nmc.fillStyle='#fff';var t=reduce?0:time*.001,spin=Math.sin(t*.45)*.055,c=Math.cos(spin),s=Math.sin(spin);for(var j=0;j<ord.length;j+=2){var n=ord[j],x=lx(n),y=ly(n),breathe=1+(reduce?0:.025*Math.sin(t*1.2+x*3+y*2));nmc.globalAlpha=.7+.3*Math.sin(t*.8+j*.2);nmc.fillRect(34+(x*c-y*s)*29*breathe,34-(x*s+y*c)*29*breathe,1.65,1.65);}nmc.globalAlpha=1;}drawNavMark(0);`);
 runtime=runtime.replace('lastDraw=now;','lastDraw=now;drawNavMark(now);');
-// Keep the original dot-built globe and orbit structure. Contain its outer
-// particles and refine only the home introduction's scale, light and trails.
+// Retain the globe and orbit concept while rebuilding its dot distribution.
+runtime=runtime.replace(/function hero\(i,k\)\{[\s\S]*?B\[i\]=bb\}/,()=>require('./home-particle-design.cjs'));
+runtime=runtime.replace('U.uI.value=ix;',"if(done&&route==='home')ix=1;U.uI.value=ix;");
 runtime=runtime.replace('uS:{value:0},uM:', 'uHeroRefine:{value:0},uS:{value:0},uM:');
 runtime=runtime.replace('uniform float uS,uM,uT,uI,uPR,uAsp,uPulse,uCalm,uVel;', 'uniform float uS,uM,uT,uI,uPR,uAsp,uPulse,uCalm,uVel,uHeroRefine;');
-runtime=runtime.replace('vA=min(vA,1.5)*step(.12,-mv.z);','vA=min(vA,1.5)*step(.12,-mv.z);/*heroLighting*/vA*=mix(1.,aK>.5&&aK<1.5?.18:.85,uHeroRefine);/*endHeroLighting*/');
+runtime=runtime.replace('vA=min(vA,1.5)*step(.12,-mv.z);',`vA=min(vA,1.5)*step(.12,-mv.z);/*heroLighting*/
+ vec3 hn=normalize((modelViewMatrix*vec4(normalize(p0),0.)).xyz);
+ float hl=max(dot(hn,normalize(vec3(-.45,.65,1.))),0.);
+ vec3 surfaceColor=mix(vec3(.58,.08,.035),vec3(1.,.72,.48),hl);
+ float shellAlpha=(.35+.65*hl)*(hn.z<0.?.16:1.);
+ float heroAlpha=aK<1.?shellAlpha:(aK<4.?.82:.12);
+ vec3 heroColor=aK<1.?surfaceColor:vec3(.94,.28,.13);
+ vC=mix(vC,heroColor,uHeroRefine*.9);vA=mix(vA,vA*heroAlpha,uHeroRefine);
+ gl_PointSize*=1.-uHeroRefine*.14;/*endHeroLighting*/`.replace(/\s+/g,' '));
 runtime=runtime.replace('var vl=lenis?lenis.velocity:0;',`var heroRefine=route==='home'?1-clamp(mm/.8,0,1):0;heroRefine=heroRefine*heroRefine*(3-2*heroRefine);
  U.uHeroRefine.value=heroRefine;
  if(heroRefine>0){pts.scale.multiplyScalar(1-.18*heroRefine);pts.position.x+=((narrow?.3:2.15)-pts.position.x)*heroRefine;pts.position.y+=(.35-pts.position.y)*heroRefine;pts.rotation.y+=(U.uT.value*.025-pts.rotation.y)*heroRefine;}
  var vl=lenis?lenis.velocity:0;`);
 runtime=runtime.replace("pts.visible=route!=='careers';", "if(heroRefine>0){U.uVel.value*=1-.85*heroRefine;fq.material.uniforms.uF.value+=(.3-fq.material.uniforms.uF.value)*heroRefine;}pts.visible=route!=='careers';");
 runtime=runtime.replace('halo.style.opacity=hwv.toFixed(3);','halo.style.opacity=(hwv*.3).toFixed(3);');
+runtime=runtime.replace('var R=2.35+g.rg*.4,th=', 'var R=2.12+Math.min(g.rg,2)*.29,th=');
 write('public/reference/runtime.js',`/* User-supplied particle design with routing, contact and accessibility integration. */\ntry {\n${runtime}\n} catch(error) {\n console.error('Avexium scene initialization failed',error);document.body.classList.add('loaded','webgl-fallback');window.removeEventListener('hashchange',window.__avexiumRoute);\n const selectPage=()=>{const route=location.hash.replace(/^#\\/?/,'')||location.pathname.split('/').filter(Boolean).join('/')||'home';const pages=[...document.querySelectorAll('.page')];const valid=pages.some(p=>p.dataset.r===route);for(const page of pages)page.classList.toggle('on',page.dataset.r===(valid?route:'home'));document.body.classList.remove('menu-open');const mobile=document.querySelector('.mob');if(mobile){mobile.inert=true;mobile.setAttribute('aria-hidden','true')}window.scrollTo(0,0);};\n window.addEventListener('hashchange',selectPage);selectPage();\n}\n`);
 // Detail pages use the exact particle shader from the shared design, without
 // mounting the overview's router, hidden pages, or scene-specific DOM.

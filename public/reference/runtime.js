@@ -123,14 +123,22 @@ var scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(42,1,.1,50);cam.posi
 var G=new THREE.BufferGeometry(),pos=[],R=new Float32Array(N),rnd=Math.random;
 for(var s=0;s<7;s++)pos.push(new Float32Array(N*3));
 var K=new Float32Array(N),B=new Float32Array(N),fi=0,NS=N*.34;
-function hero(i,k){var q=rnd(),X,Y,Z,kd=0,bb=1,r,la,lo,sl;
- if(q<.34){la=Math.acos(1-2*Math.min((fi+.5)/NS,1));lo=fi*2.39996;fi++;r=1.7;sl=Math.sin(la);X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);bb=.8}
- else if(q<.46){if(rnd()<.55){lo=Math.floor(rnd()*12)*Math.PI/6+(rnd()-.5)*.012;la=Math.acos(1-2*rnd())}else{la=Math.PI*(Math.floor(rnd()*7)+1)/8+(rnd()-.5)*.012;lo=rnd()*6.2832}
-  r=1.707;sl=Math.sin(la);X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);bb=1.6}
- else if(q<.58){r=1.05*Math.pow(rnd(),.55);la=Math.acos(1-2*rnd());lo=rnd()*6.2832;sl=Math.sin(la);X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);kd=1;bb=1.4}
- else if(q<.88){var rg=Math.floor(rnd()*5),hd=Math.floor(rnd()*3)*2.0944,tr=Math.pow(rnd(),2.2)*1.9,dr=(rg===1||rg===3)?-1:1,a=hd-dr*tr;r=2.35+rg*.4+(rnd()-.5)*.05;X=r*Math.cos(a);Y=(rnd()-.5)*.03;Z=r*Math.sin(a);kd=2+rg*.3;bb=.4+1.8*Math.pow(1-tr/1.9,2)}
- else{r=2+rnd()*2.6;la=Math.acos(1-2*rnd());lo=rnd()*6.2832;sl=Math.sin(la);X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);kd=4;bb=.5+rnd()*.5}
- pos[0][k]=X;pos[0][k+1]=Y;pos[0][k+2]=Z;K[i]=kd;B[i]=bb}
+function hero(i,k){
+ var fraction=i/N,X,Y,Z,kd=0,bb=.6,r,la,lo,sl;
+ if(fraction<.66){
+  var shellCount=Math.floor(N*.66);la=Math.acos(1-2*(i+.5)/shellCount);lo=i*2.39996323;
+  r=1.65+(rnd()-.5)*.018;sl=Math.sin(la);X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);bb=.58+rnd()*.18;
+ }else if(fraction<.94){
+  var orbitIndex=i-Math.floor(N*.66),rg=orbitIndex%3,angle=orbitIndex*.61803398875*6.2831853;
+  r=2.12+rg*.29+(rnd()-.5)*.025;
+  X=r*Math.cos(angle);Y=(rnd()-.5)*.022;Z=r*Math.sin(angle);kd=2+rg*.3;
+  bb=.38+.22*(.5+.5*Math.sin(angle*2.+rg));
+ }else{
+  r=1.8+rnd()*1.3;la=Math.acos(1-2*rnd());lo=rnd()*6.2831853;sl=Math.sin(la);
+  X=r*sl*Math.cos(lo);Y=r*Math.cos(la);Z=r*sl*Math.sin(lo);kd=4;bb=.11+rnd()*.14;
+ }
+ pos[0][k]=X;pos[0][k+1]=Y;pos[0][k+2]=Z;K[i]=kd;B[i]=bb;
+}
 for(i=0;i<N;i++){R[i]=rnd();var k=i*3,u=rnd(),v=rnd(),th=u*6.2832,ph=Math.acos(2*v-1),r0=1.7*(.97+rnd()*.06),x=r0*Math.sin(ph)*Math.cos(th),y=r0*Math.cos(ph),z=r0*Math.sin(ph)*Math.sin(th);
  hero(i,k);pos[5].set([x*1.25,y*1.25,z*1.25],k);pos[6].set([(rnd()-.5)*11,-3.2+6.4*(i%56)/55,0],k);
  var a=rnd()*6.2832,b=rnd()*6.2832,rr=.55*(.9+rnd()*.2);pos[1].set([(1.7+rr*Math.cos(b))*Math.cos(a),rr*Math.sin(b)*1.1,(1.7+rr*Math.cos(b))*Math.sin(a)],k);
@@ -157,7 +165,7 @@ vertexShader:'attribute vec3 p1,p2,p3,p4,p5,p6;attribute float aR,aK,aB;uniform 
 'gl_PointSize=clamp((1.1+aR*2.3)*uPR*(7./max(-mv.z,.12))*(1.-uCalm*.2)*(.85+.25*aB),.6,7.*uPR);'+
 'vA=(.3+.7*aR)*mix(aB,1.,uCalm);vA+=hw*(pow(fr,2.5)*.55+band*.7+wv*.9);vA*=.72+.28*sin(uT*2.2+aR*60.);'+
 'vec3 c1=mix(uC1,uC2,.5+.5*sin(p.y*1.1+uT*.25+aR*3.));c1=mix(c1,vec3(1.,.9,.78),hw*core*.55);c1=mix(c1,vec3(1.),clamp((band+wv*.7)*hw,0.,1.)*.75);vC=mix(c1,vec3(.95,.97,1.),uCalm*.75);'+
-'vA*=.55+.45*smoothstep(-3.,1.5,p.z);vA=min(vA,1.5)*step(.12,-mv.z);/*heroLighting*/vA*=mix(1.,aK>.5&&aK<1.5?.18:.85,uHeroRefine);/*endHeroLighting*/}',
+'vA*=.55+.45*smoothstep(-3.,1.5,p.z);vA=min(vA,1.5)*step(.12,-mv.z);/*heroLighting*/ vec3 hn=normalize((modelViewMatrix*vec4(normalize(p0),0.)).xyz); float hl=max(dot(hn,normalize(vec3(-.45,.65,1.))),0.); vec3 surfaceColor=mix(vec3(.58,.08,.035),vec3(1.,.72,.48),hl); float shellAlpha=(.35+.65*hl)*(hn.z<0.?.16:1.); float heroAlpha=aK<1.?shellAlpha:(aK<4.?.82:.12); vec3 heroColor=aK<1.?surfaceColor:vec3(.94,.28,.13); vC=mix(vC,heroColor,uHeroRefine*.9);vA=mix(vA,vA*heroAlpha,uHeroRefine); gl_PointSize*=1.-uHeroRefine*.14;/*endHeroLighting*/}',
 fragmentShader:'precision highp float;varying float vA;varying vec3 vC;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,d);gl_FragColor=vec4(vC,a*a*vA*.9);}'}));
 pts.frustumCulled=false;scene.add(pts);
 
@@ -217,7 +225,7 @@ var lastDraw=0;function frame(now){
  var dt=Math.min((now-clock)/1000,.05);clock=now;if(lenis)lenis.raf(now);
  var y=scrollY,vh=innerHeight,max=document.documentElement.scrollHeight-vh,p=clamp(y/Math.max(max,1),0,1);
  if(pend.length)pend=pend.filter(function(el){var rc=el.getBoundingClientRect();if(rc.top<innerHeight*.92&&rc.bottom>0){el.classList.add('in');return false}return true});
- ix+=((done?1:0)-ix)*.022;U.uI.value=ix;if(!reduce)U.uT.value+=dt;
+ ix+=((done?1:0)-ix)*.022;if(done&&route==='home')ix=1;U.uI.value=ix;if(!reduce)U.uT.value+=dt;
  var tgt=morphAt(y,max);if(mm===null)mm=tgt;mm+=(tgt-mm)*(1-Math.pow(.93,dt*60));U.uM.value=mm;sv+=(((route==='services'||route==='start')?1:0)-sv)*.045;U.uS.value=sv;
  var w=clamp(1-Math.abs(mm-3),0,1);w=w*w*(3-2*w);if(route==='start')w=0;U.uCalm.value=w;
  pulse*=.95;U.uPulse.value=pulse>.002?pulse:0;
@@ -255,7 +263,7 @@ var lastDraw=0;function frame(now){
   var pxu=innerHeight/5.375,Rp=1.7*pts.scale.x*pxu,Sp=Rp*3.8,hx=innerWidth/2+pts.position.x*pxu,hy=innerHeight/2-pts.position.y*pxu;
   halo.style.width=halo.style.height=Sp+'px';halo.style.transform='translate3d('+(hx-Sp/2)+'px,'+(hy-Sp/2)+'px,0)';halo.style.opacity=(hwv*.3).toFixed(3);halo.style.setProperty('--hc',(pv[0]*255|0)+','+(pv[1]*255|0)+','+(pv[2]*255|0));
   rim.style.width=rim.style.height=2*Rp+'px';rim.style.transform='translate3d('+(hx-Rp)+'px,'+(hy-Rp)+'px,0) rotate('+(U.uT.value*14)+'deg)';rim.style.opacity=(hwv*.9).toFixed(3);
-  TG.forEach(function(g){var R=2.35+g.rg*.4,th=U.uT.value*RS[g.rg],x=R*Math.cos(g.a),z=R*Math.sin(g.a),c=Math.cos(th),sn=Math.sin(th),qz=x*sn+z*c,qx=x*c-z*sn,tc=Math.cos(RT[g.rg]),ts=Math.sin(RT[g.rg]);
+  TG.forEach(function(g){var R=2.12+Math.min(g.rg,2)*.29,th=U.uT.value*RS[g.rg],x=R*Math.cos(g.a),z=R*Math.sin(g.a),c=Math.cos(th),sn=Math.sin(th),qz=x*sn+z*c,qx=x*c-z*sn,tc=Math.cos(RT[g.rg]),ts=Math.sin(RT[g.rg]);
    tv.set(qx,-qz*ts,qz*tc);pts.localToWorld(tv);var front=tv.z>-.3?1:.3;tv.project(cam);
    g.e.style.opacity=(hwv*front).toFixed(3);g.e.style.transform='translate3d('+((tv.x*.5+.5)*innerWidth+12)+'px,'+((-tv.y*.5+.5)*innerHeight)+'px,0) translateY(-50%) scale('+(.85+.15*front)+')'});
   arts.forEach(function(a){var c=a.parentNode.parentNode.getBoundingClientRect();a.style.transform='translate3d('+((c.left+c.width/2-innerWidth/2)*-.12)+'px,0,0) scale(1.05)'});
