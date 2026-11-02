@@ -2,7 +2,10 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const presentationScale=.75;
-const servicePages=require(path.join(root,'src/data/service-pages.json'));
+const cataloguePages=require(path.join(root,'src/data/service-pages.json'));
+// The reference has ten specimens; the public directory is built from the
+// complete catalogue after importing those existing animated components.
+const servicePages=cataloguePages.filter(service=>service.featuredLegacy);
 const source=fs.readFileSync(process.argv[2]||path.join(root,'design-reference/Avexium_Digital2.html'),'utf8');
 const write=(file,text)=>fs.writeFileSync(path.join(root,file),text);
 let css=[...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m=>m[1]).join('\n');
@@ -101,13 +104,14 @@ specimenLines.forEach((line,index)=>{
  }
  visuals[servicePages[index].slug]=visual;
 });
+cataloguePages.forEach(service=>{if(!visuals[service.slug])visuals[service.slug]=visuals[service.visual];});
 write('src/data/service-visuals.ts',`// Generated from the same specimens as the animated Services overview.\nexport const serviceVisuals:Record<string,string>=${JSON.stringify(visuals)};\n`);
 const homeServiceLinks={'Brand identity':'brand-identity','Websites and web apps':'web-development','Product design':'ui-ux-product-design','Motion and 3D':'motion-3d'};
 markup=markup.replace(/<a([^>]*?)href="#\/services"([^>]*)>([\s\S]*?)<\/a>/g,(link,before,after,content)=>{
  const title=content.match(/<h3>([^<]+)<\/h3>/)?.[1],slug=homeServiceLinks[title];
  return slug?`<a${before}href="/services/${slug}"${after}>${content}</a>`:link;
 });
-markup=markup.replace(/<div class="chips" id="need">[\s\S]*?<\/div>/,()=>`<div class="chips" id="need">${servicePages.map(service=>`<button type="button" class="chip" data-service="${service.slug}" aria-pressed="false">${service.title}</button>`).join('')}</div>`);
+markup=markup.replace(/<div class="chips" id="need">[\s\S]*?<\/div>/,()=>`<div class="chips" id="need">${cataloguePages.map(service=>`<button type="button" class="chip" data-service="${service.slug}" aria-pressed="false">${service.title}</button>`).join('')}</div>`);
 markup=markup.replace(/<div class="fl">Budget<\/div><div class="chips" id="bud">[\s\S]*?<\/div>/,()=>`<div class="fl">Project stage</div><div class="chips" id="bud">${['Starting something new','Redesigning','Improving an existing product','Exploring options'].map(stage=>`<button type="button" class="chip" aria-pressed="false">${stage}</button>`).join('')}</div>`);
 if(/\$\s*\d|\bBudget\b/i.test(markup))throw new Error('Pricing or budget language remains in the active website.');
 runtime=runtime.replace("$('#fm').addEventListener",()=>"var requestedService=new URLSearchParams(location.search).get('service');$$('#need .chip').forEach(function(c){if(c.dataset.service===requestedService)c.setAttribute('aria-pressed','true')});$('#fm').addEventListener");
@@ -138,6 +142,7 @@ runtime=runtime.replace("addEventListener('hashchange',go);", "window.__avexiumR
 runtime=runtime.replace("requestAnimationFrame(frame);\n})();", "requestAnimationFrame(frame);\nif(hashRoute()!=='home')go();\nwindow.__avexiumReferenceReady=true;\n})();");
 runtime=runtime.replace('addEventListener(\'resize\',size);size();', "addEventListener('resize',size);size();if(document.fonts)document.fonts.ready.then(measure);");
 markup=require('./site-content.cjs')(markup);
+({markup,runtime}=require('./service-directory.cjs')({markup,runtime,services:cataloguePages,visuals}));
 ({markup,runtime}=require('./launch-readiness.cjs')({markup,runtime}));
 // Correct only the scroll sequence; preserve the original particle animation.
 runtime=runtime.replace('[top(pr)+vh*.5,4],[top(ct),5]', '[top(pr)-vh*.35,4],[Math.max(top(pr)-vh*.35,top(ct)-vh*.85),4],[top(ct)+vh*.35,5]');

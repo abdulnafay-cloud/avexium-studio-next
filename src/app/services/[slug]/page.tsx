@@ -4,6 +4,7 @@ import type {Metadata} from 'next';
 import {pageMetadata} from '@/lib/site-metadata';
 import {notFound} from 'next/navigation';
 import servicePages from '@/data/service-pages.json';
+import serviceCategories from '@/data/service-categories.json';
 import {serviceVisuals} from '@/data/service-visuals';
 import ServiceBackground from '@/components/ServiceBackground';
 import ServicePageMotion from '@/components/ServicePageMotion';
@@ -22,7 +23,7 @@ const sections=[['overview','The right fit'],['implementation','What we do'],['t
 export default async function ServiceDetail({params}:{params:Promise<{slug:string}>}){
  const {slug}=await params,index=servicePages.findIndex(item=>item.slug===slug),service=servicePages[index];
  if(!service)notFound();
- const enquiry=`/start?service=${encodeURIComponent(service.slug)}`,references='references' in service?service.references:undefined;
+ const enquiry=`/start?service=${encodeURIComponent(service.slug)}`,references='references' in service?service.references:undefined,category=serviceCategories.find(item=>item.slug===service.category);
  return <div className="service-detail" style={{'--detail-accent':service.color} as CSSProperties}>
   <ServiceBackground accent={service.color}/>
   <ServicePageMotion/>
@@ -31,7 +32,7 @@ export default async function ServiceDetail({params}:{params:Promise<{slug:strin
   <main id="service-content" tabIndex={-1}>
    <section className="detail-hero detail-container">
     <div className="detail-breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><a href="/services">Services</a><span aria-hidden="true">/</span><span>{service.title}</span></div>
-    <div className="detail-hero-grid"><div><p className="detail-eyebrow"><span aria-hidden="true"/>{service.focus}</p><h1>{service.title}</h1><p className="detail-lead">{service.summary}</p><div className="detail-actions"><a className="detail-button" href={enquiry}>Discuss this service <span aria-hidden="true">↗</span></a><a className="detail-text-link" href="#implementation">Explore the details <span aria-hidden="true">↓</span></a></div></div>
+    <div className="detail-hero-grid"><div>{category&&<a className="detail-category-link" href={`/services?category=${category.slug}`}>{category.title} ↗</a>}<p className="detail-eyebrow"><span aria-hidden="true"/>{service.focus}</p><h1>{service.title}</h1><p className="detail-lead">{service.summary}</p><div className="detail-actions"><a className="detail-button" href={enquiry}>Discuss this service <span aria-hidden="true">↗</span></a><a className="detail-text-link" href="#implementation">Explore the details <span aria-hidden="true">↓</span></a></div></div>
      <ServiceShowcase title={service.title} slug={service.slug} visual={serviceVisuals[service.slug]} labels={service.technology.map(item=>item.name)}/>
     </div>
    </section>
@@ -40,7 +41,7 @@ export default async function ServiceDetail({params}:{params:Promise<{slug:strin
     <div className="detail-sections">
      <section id="overview" className="detail-section"><p className="detail-eyebrow">Use cases</p><h2>When to commission this.</h2><ul className="detail-fit-list">{service.useCases.map(text=><li key={text}>{text}</li>)}</ul></section>
      <section id="implementation" className="detail-section"><p className="detail-eyebrow">Service scope</p><h2>Scope of work.</h2><p className="detail-section-intro">These are the main areas of work. Your proposal will specify which are included, the review stages and what we need from your team.</p><div>{service.work.map((item,i)=><article className="detail-work" key={item.title}><span className="detail-work-number">{String(i+1).padStart(2,'0')}</span><div><h3>{item.title}</h3><p>{item.detail}</p><div className="detail-check"><span>Acceptance checks</span><p>{item.check}</p></div></div></article>)}</div></section>
-     <section id="technology" className="detail-section"><p className="detail-eyebrow">Implementation approach</p><h2>Technology and implementation.</h2><p className="detail-section-intro">We choose tools to suit the features, your existing setup and whoever will maintain the project. Here is how the main options apply to this service.</p><div className="detail-technology">{service.technology.map(item=><article key={item.name}><h3>{item.name}</h3><p>{item.detail}</p></article>)}</div>{references&&<div className="detail-references"><span>Technical references</span>{references.map(([label,url])=><a key={url} href={url} target="_blank" rel="noopener noreferrer">{label} ↗</a>)}</div>}</section>
+     <section id="technology" className="detail-section"><p className="detail-eyebrow">Methods and tools</p><h2>Tools and working methods.</h2><p className="detail-section-intro">The working approach follows the required output, your existing systems and the people responsible for review and ongoing use.</p><div className="detail-technology">{service.technology.map(item=><article key={item.name}><h3>{item.name}</h3><p>{item.detail}</p></article>)}</div>{references&&<div className="detail-references"><span>Reference material</span>{references.map(([label,url])=><a key={url} href={url} target="_blank" rel="noopener noreferrer">{label} ↗</a>)}</div>}</section>
      <section id="handover" className="detail-section"><p className="detail-eyebrow">Project outputs</p><h2>Deliverables and handover.</h2><ul className="detail-deliverables">{service.deliverables.map(text=><li key={text}><span aria-hidden="true">↗</span>{text}</li>)}</ul><div className="detail-inputs"><h3>What we need from you.</h3><p>We confirm the required materials, access and decision-makers before work begins.</p><ul>{service.inputs.map(text=><li key={text}>{text}</li>)}</ul></div></section>
      <section id="process" className="detail-section"><p className="detail-eyebrow">Delivery stages</p><h2>Delivery process.</h2><ol className="detail-process">{service.process.map(([title,text],i)=><li key={title}><span>{String(i+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{text}</p></div></li>)}</ol></section>
      <section id="questions" className="detail-section"><p className="detail-eyebrow">Service questions</p><h2>Common questions.</h2><div className="detail-faq">{service.faq.map(([question,answer])=><details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>

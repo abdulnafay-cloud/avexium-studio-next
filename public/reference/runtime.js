@@ -49,7 +49,7 @@ setTint($('.cd.open'));var aur=$('.aur'),rail=$('#rail'),sx=$('#sx'),spi=$('#spi
 wl.addEventListener('pointerover',function(e){var li=e.target.closest('li');if(!li)return;if(wop<.05){wpx=tx;wpy=ty}wh=li;var a=$('.art',wprev);$('.in',a).style.backgroundImage='url('+li.dataset.image+')';$('.in',a).classList.add('project-image');['--a1','--a2','--a3'].forEach(function(v){a.style.setProperty(v,li.style.getPropertyValue(v))})});
 wl.addEventListener('pointerleave',function(){wh=null});
 AI.forEach(function(c,i){var nm=c.querySelector('h3').textContent,b=document.createElement('button');b.setAttribute('aria-label',nm);b.style.setProperty('--rc',c.style.getPropertyValue('--sc'));b.innerHTML='<span>'+nm+'</span><i></i>';
- b.addEventListener('click',function(){var deck=$('#deck'),gap=parseFloat(getComputedStyle(deck).rowGap)||0,y=deck.getBoundingClientRect().top+scrollY;for(var k=0;k<i;k++)y+=AI[k].offsetHeight+gap;y-=parseFloat(getComputedStyle(c).top)||80;if(lenis)lenis.scrollTo(y,{duration:1.4});else scrollTo({top:y,behavior:'smooth'})});rail.appendChild(b)});
+ b.addEventListener('click',function(){var deck=$('#deck'),gap=parseFloat(getComputedStyle(deck).rowGap)||0,y=deck.getBoundingClientRect().top+scrollY;for(var k=0;k<AI.indexOf(c);k++)y+=AI[k].offsetHeight+gap;y-=parseFloat(getComputedStyle(c).top)||80;if(lenis)lenis.scrollTo(y,{duration:1.4});else scrollTo({top:y,behavior:'smooth'})});rail.appendChild(b)});
 var RB=$$('#rail button');RB[0].classList.add('on');
 
 $$('#need .chip').forEach(function(c){c.addEventListener('click',function(){c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')!=='true')})});
@@ -86,11 +86,35 @@ var route='home',busy=false,names={home:'Avexium',services:'Services',work:'Work
 function hashRoute(){var h=location.hash.replace(/^#\/?/,'')||location.pathname.replace(/^\/|\/$/g,'')||'home';return names[h]?h:'home'}
 function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
 function setActive(){$$('.links a,footer nav a').forEach(function(a){if(a.getAttribute('href')===(route==='home'?'/':'/'+route))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
-var pageSEO={"home":["Brand, web & software","Brand identities, websites and software built around your business."],"services":["Design & technology services","Explore design and engineering services, practical scope and technology details."],"work":["Selected work","Independent interface and brand studies, with the decisions behind each concept."],"process":["How we work","Requirements, design, implementation, testing and handover."],"careers":["Careers & collaboration","Explore disciplines and submit your portfolio for future collaborations."],"start":["Start a project","Share your business challenge and submit your project enquiry directly."]};function syncSEO(r){var values=pageSEO[r],url=location.origin+(r==='home'?'/':'/'+r);document.title=values[0]+' — Avexium Digital';var canonical=document.querySelector('link[rel="canonical"]');if(canonical)canonical.href=url;[['meta[name="description"]','content',values[1]],['meta[property="og:title"]','content',document.title],['meta[property="og:description"]','content',values[1]],['meta[property="og:url"]','content',url],['meta[name="twitter:title"]','content',document.title],['meta[name="twitter:description"]','content',values[1]]].forEach(function(item){var el=document.querySelector(item[0]);if(el)el.setAttribute(item[1],item[2]);});}async function go(){var r=hashRoute();document.body.classList.remove('menu-open');menu.setAttribute('aria-expanded','false');$('.mob').inert=true;$('.mob').setAttribute('aria-hidden','true');if(r===route){if(lenis)lenis.scrollTo(0);else scrollTo(0,0);return}
+var pageSEO={"home":["Brand, web & software","Brand identities, websites and software built around your business."],"services":["Business services","Explore technology, marketing, creative, writing and business services, with practical scopes, working methods and handover details."],"work":["Selected work","Independent interface and brand studies, with the decisions behind each concept."],"process":["How we work","Requirements, design, implementation, testing and handover."],"careers":["Careers & collaboration","Explore disciplines and submit your portfolio for future collaborations."],"start":["Start a project","Share your business challenge and submit your project enquiry directly."]};function syncSEO(r){var values=pageSEO[r],url=location.origin+(r==='home'?'/':'/'+r);document.title=values[0]+' — Avexium Digital';var canonical=document.querySelector('link[rel="canonical"]');if(canonical)canonical.href=url;[['meta[name="description"]','content',values[1]],['meta[property="og:title"]','content',document.title],['meta[property="og:description"]','content',values[1]],['meta[property="og:url"]','content',url],['meta[name="twitter:title"]','content',document.title],['meta[name="twitter:description"]','content',values[1]]].forEach(function(item){var el=document.querySelector(item[0]);if(el)el.setAttribute(item[1],item[2]);});}async function go(){var r=hashRoute();document.body.classList.remove('menu-open');menu.setAttribute('aria-expanded','false');$('.mob').inert=true;$('.mob').setAttribute('aria-hidden','true');if(r===route){if(lenis)lenis.scrollTo(0);else scrollTo(0,0);return}
  if(busy)return;busy=true;$('#cvt').textContent=names[r];cv.className='in';pulse=1;await wait(900);
  $$('.page').forEach(function(p){p.classList.toggle('on',p.dataset.r===r)});route=r;document.body.dataset.r=r;document.title=r==='home'?'Avexium Digital — brand design, websites and software':names[r]+' — Avexium Digital';syncSEO(r);setActive();if(r!=='home'){halo.style.opacity=0;rim.style.opacity=0;tagsEl.style.opacity=0}
  if(lenis){lenis.scrollTo(0,{immediate:true})}scrollTo(0,0);measure();
  cv.className='out';await wait(250);arm($('.page.on'));await wait(700);cv.className='nt';void cv.offsetWidth;cv.className='';busy=false;if(hashRoute()!==route)go()}
+
+(function(){
+ var allCards=AI.slice(),allRail=RB.slice(),field=$('#service-search'),count=$('#service-result-count'),empty=$('#service-search-empty'),form=$('.catalogue-search');
+ function filterServices(){
+  var terms=field.value.trim().toLowerCase().split(/\s+/).filter(Boolean),total=0;
+  allCards.forEach(function(card,index){
+   var matches=0,links=card.querySelectorAll('[data-service-search]');
+   links.forEach(function(link){var show=terms.every(function(term){return link.dataset.serviceSearch.toLowerCase().includes(term);});link.hidden=!show;if(show){matches++;total++;}});
+   card.querySelector('.service-tech').textContent=(terms.length?matches+' of ':'')+links.length+' services';
+   card.hidden=!matches;allRail[index].hidden=!matches;var jump=document.querySelector('[data-category-jump="'+card.dataset.category+'"]');if(jump)jump.disabled=!matches;
+  });
+  AI=allCards.filter(function(card){return !card.hidden;});RB=allRail.filter(function(button){return !button.hidden;});AI.forEach(function(card,index){card.style.setProperty('--i',index);});
+  count.textContent=total+' '+(total===1?'service':'services')+(terms.length?' matching your search':' across 5 categories');empty.hidden=total!==0;
+  if(lenis)lenis.resize();
+ }
+ if(field){field.addEventListener('input',filterServices);form.addEventListener('submit',function(event){event.preventDefault();});form.addEventListener('reset',function(){field.value='';filterServices();field.focus();});}
+ function jumpCategory(slug){var target=document.querySelector('[data-category="'+slug+'"]');if(!target)return;var y=target.getBoundingClientRect().top+scrollY-94;if(lenis)lenis.scrollTo(y,{duration:1.2});else scrollTo({top:y,behavior:reduce?'instant':'smooth'});}
+ document.querySelectorAll('[data-category-jump]').forEach(function(button){button.addEventListener('click',function(){jumpCategory(button.dataset.categoryJump);});});
+ var requested=new URLSearchParams(location.search).get('category');if(requested&&location.pathname==='/services'){var applied=false;var observer=new MutationObserver(function(){if(!applied&&document.body.dataset.r==='services'){applied=true;observer.disconnect();setTimeout(function(){jumpCategory(requested);},1000);}});observer.observe(document.body,{attributes:true,attributeFilter:['data-r']});}
+ function updateChoices(){document.querySelectorAll('.service-choice-group').forEach(function(group){var selected=group.querySelectorAll('[aria-pressed="true"]').length;group.querySelector('.choice-count').textContent=selected?selected+' selected':'Select services';});}
+ var need=$('#need');if(need){need.addEventListener('click',function(event){if(event.target.closest('.chip'))queueMicrotask(updateChoices);});}
+ var selected=document.querySelector('#need .chip[aria-pressed="true"]');if(selected){selected.closest('details').open=true;}updateChoices();var resetBrief=$('#edit-brief');if(resetBrief)resetBrief.addEventListener('click',function(){queueMicrotask(updateChoices);});
+})();
+
 var careerJump=$('[data-career-jump]');if(careerJump)careerJump.addEventListener('click',function(){var target=$('#career-roles'),y=target.getBoundingClientRect().top+scrollY-85;if(lenis)lenis.scrollTo(y,{duration:1.4});else scrollTo({top:y,behavior:reduce?'instant':'smooth'});});
 (function(){
  var input=document.querySelector('#career-search'),filter=document.querySelector('#career-discipline');
@@ -107,7 +131,7 @@ var careerJump=$('[data-career-jump]');if(careerJump)careerJump.addEventListener
  document.querySelector('#career-search-reset').addEventListener('click',function(){input.value='';filter.value='all';updateCareerSearch();input.focus();});
 })();
 
-window.__avexiumRoute=go;addEventListener('hashchange',function(){var route=hashRoute();history.replaceState(null,'',route==='home'?'/':'/'+route);go();});addEventListener('popstate',go);document.addEventListener('click',function(event){var link=event.target.closest('a');if(!link||event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||link.target==='_blank')return;var url=new URL(link.href,location.href),target=url.pathname.replace(/^\/|\/$/g,'')||'home';if(url.origin!==location.origin||!names[target]||url.hash&&!url.hash.startsWith('#/'))return;event.preventDefault();history.pushState(null,'',url.pathname+url.search);go();});setActive();
+window.__avexiumRoute=go;addEventListener('hashchange',function(){var route=hashRoute();history.replaceState(null,'',route==='home'?'/':'/'+route);go();});addEventListener('popstate',go);document.addEventListener('click',function(event){var link=event.target.closest('a');if(!link||event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||link.target==='_blank')return;var url=new URL(link.href,location.href),target=url.pathname.replace(/^\/|\/$/g,'')||'home';if(link.hasAttribute('data-native-navigation')||url.origin!==location.origin||!names[target]||url.hash&&!url.hash.startsWith('#/'))return;event.preventDefault();history.pushState(null,'',url.pathname+url.search);go();});setActive();
 
 /* ---- marquee + statement ---- */
 var names2=["Brand identity","Website design","Web development","Product design","AI & automation","Motion & 3D"],mq=$('#mq');mq.innerHTML=names2.concat(names2,names2,names2).map(function(n){return'<span>'+n+'</span>'}).join('');var mqx=0;
@@ -260,7 +284,7 @@ var lastDraw=0;function frame(now){
   var q=hproc.getBoundingClientRect(),pp=clamp(-q.top/(hproc.offsetHeight-vh),0,.999),si=Math.floor(pp*4);plist.style.setProperty('--p',pp.toFixed(3));
   for(var s2=0;s2<4;s2++){words[s2].classList.toggle('on',s2===si);pl[s2].classList.toggle('on',s2===si)}
  }
- if(route==='services'){
+ if(route==='services'&&AI.length){
  var deck=$('#deck'),deckTop=deck.getBoundingClientRect().top+scrollY,gap=parseFloat(getComputedStyle(deck).rowGap)||0,offset=deckTop,index=0,blend=0;
  AI.forEach(function(card,i){
   var naturalTop=offset-scrollY,stickyTop=parseFloat(getComputedStyle(card).top)||80;

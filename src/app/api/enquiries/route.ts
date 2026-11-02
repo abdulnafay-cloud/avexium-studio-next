@@ -16,8 +16,8 @@ export async function POST(request:Request){
  if(name.length<2||name.length>120||email.length>254||!/^\S+@[^\s@]+\.[^\s@]+$/.test(email))return fail('Enter your full name and a valid email address.',400);
  if(message.length<30||message.length>6000||stage.length>100)return fail('Describe your project in 30–6,000 characters.',400);
  if(body.consent!==true)return fail('Please agree to the privacy information.',400);
- if(!Array.isArray(body.services)||body.services.length>10)return fail('Choose valid services.',400);
- const selected=[...new Set(body.services.map(value=>services.find(service=>service.slug===value||service.title===value)?.title))];
+ if(!Array.isArray(body.services)||body.services.length>services.length)return fail('Choose valid services.',400);
+ const selected=[...new Set(body.services.map(value=>services.find(service=>service.slug===value||service.title===value||service.previousTitles.some(title=>title===value))?.title))];
  if(selected.some(value=>!value))return fail('Choose valid services.',400);
  const now=Date.now();for(const [key,value] of attempts)if(value.expires<now)attempts.delete(key);
  const prior=attempts.get(email);if(prior&&prior.count>=5)return fail('You have submitted several enquiries. Please try again in an hour.',429);

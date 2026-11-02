@@ -1,10 +1,10 @@
 import {renderApplicationDashboard} from './application-dashboard';
 import type {Enquiry} from './enquiries';
 import type {DashboardStats} from './application-dashboard';
-type Service={slug:string;title:string};
+type Service={slug:string;title:string;previousTitles?:string[]};
 export function renderEnquiryDashboard(enquiries:Enquiry[],services:Service[],owner:string,query:{search?:string;role?:string},stats?:DashboardStats){
  const roles=[...services.map(item=>({...item,discipline:'Service enquiry'})),{slug:'general-enquiry',title:'Scope to discuss',discipline:'Project enquiry'}];
- const records=enquiries.map(item=>({...item,role:services.find(service=>service.title===item.services[0])?.slug||'general-enquiry',portfolio:'',availability:item.stage,hasCV:false,message:'Services: '+(item.services.join(', ')||'To discuss')+'\n\n'+item.message}));
+ const records=enquiries.map(item=>({...item,role:services.find(service=>service.title===item.services[0]||service.previousTitles?.includes(item.services[0]))?.slug||'general-enquiry',portfolio:'',availability:item.stage,hasCV:false,message:'Services: '+(item.services.join(', ')||'To discuss')+'\n\n'+item.message}));
  const week=Date.now()-7*86400000;
  const enquiryStats=stats||{total:enquiries.length,recent:enquiries.filter(item=>Date.parse(item.createdAt)>=week).length,withCV:enquiries.filter(item=>item.services.length>0).length,disciplines:new Set(enquiries.flatMap(item=>item.services)).size};
  let html=renderApplicationDashboard(records,roles,owner,query,enquiryStats);
